@@ -159,7 +159,9 @@ def main():
     cd, cd_file = load_creator_data(sh)
     header, idx, rows = load_task_sheet(sh)
     JST = timezone(timedelta(hours=9))
-    updated = datetime.now(JST).strftime("%Y-%m-%d")
+    now = datetime.now(JST)
+    updated = now.strftime("%Y-%m-%d")
+    updated_at = now.strftime("%Y/%m/%d %H:%M") + " JST"
 
     out_dir = os.path.join(ROOT, "docs", "data")
     os.makedirs(out_dir, exist_ok=True)
@@ -184,6 +186,7 @@ def main():
             "status": status,
             "period": cfg.get("period_label", ""),
             "updated": updated,
+            "updated_at": updated_at,
             "tiers": [],
         }
         mem_b = "ビギナー" in rally

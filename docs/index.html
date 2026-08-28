@@ -205,6 +205,8 @@
   footer{text-align:center;font-size:11px;color:var(--ink-faint);margin-top:34px;font-family:var(--font-num);line-height:1.7}
   footer .u{display:inline-flex;align-items:center;gap:6px}
   footer .u::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent)}
+  footer .upd{color:var(--ink-faint);margin-left:10px;padding-left:10px;border-left:1px solid var(--line)}
+  footer .upd:empty{display:none}
 
   @media (max-width:680px){ .grid{grid-template-columns:repeat(3,1fr)} }
   @media (max-width:520px){
@@ -254,7 +256,7 @@
   </div>
   <div id="app"><div class="msg">読み込み中…</div></div>
   <footer>
-    <span class="u">毎日自動更新</span><br>
+    <span class="u">毎日自動更新</span><span class="upd" id="lastUpdated"></span><br>
     DeNA Creator Links ・ TikTok LIVE スタンプラリー
   </footer>
 </div>
@@ -381,6 +383,8 @@ function render(d){
     }).join("") + `</div>`;
   const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status) : emptyPanel(t)).join("");
   document.getElementById("app").innerHTML = chip + tabs + panels;
+  const lu = document.getElementById("lastUpdated");
+  if (lu && d.updated_at) lu.textContent = "最終更新 " + d.updated_at;
   window._data = d;
   selectTier(primary);
 }
