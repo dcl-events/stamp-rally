@@ -251,37 +251,22 @@
   /* ===== 達成スタンプの強調＋モーション ===== */
   .stamp.done{border-color:color-mix(in srgb,var(--accent) 34%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
   /* ビギナー限定：円リングをページのブランドグラデ(teal→purple→pink)に */
-  @property --ringAngle{syntax:"<angle>";inherits:false;initial-value:140deg}
   body:not(.mode-rise) .stamp.done .medal{
     background:linear-gradient(var(--medal-face),var(--medal-face)) padding-box,
-      conic-gradient(from var(--ringAngle,140deg), #1FC7B6, #7C4DFF, #FF3D77, #1FC7B6) border-box;
-    box-shadow:0 0 0 4px color-mix(in srgb,#7C4DFF 12%,transparent), 0 8px 22px -8px color-mix(in srgb,#FF3D77 42%,transparent);
+      conic-gradient(from 140deg, #1FC7B6, #7C4DFF, #FF3D77, #1FC7B6) border-box;
   }
-  @keyframes spinRing{to{--ringAngle:500deg}}
-  /* キラキラ（2粒の星がまたたく） */
-  .stamp.done::before,.stamp.done::after{content:"✦";position:absolute;z-index:3;pointer-events:none;opacity:0;
-    color:#FFD3E6;text-shadow:0 0 7px rgba(255,90,160,.95),0 0 2px rgba(255,225,150,.9)}
-  .stamp.done::before{top:38px;left:20px;font-size:14px}
-  .stamp.done::after{top:60px;right:22px;font-size:10px}
-  @media (prefers-reduced-motion:no-preference){
-    .rally.on .stamp.done::before{animation:twinkle 2.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*75ms + 1s)}
-    .rally.on .stamp.done::after{animation:twinkle 2.6s ease-in-out infinite;animation-delay:calc(var(--i,0)*75ms + 2s)}
-    body.mode-rise .rally.on .stamp.done::before,body.mode-rise .rally.on .stamp.done::after{animation:none!important;opacity:0}
-  }
-  @keyframes twinkle{0%,100%{opacity:0;transform:scale(.4) rotate(0)}42%{opacity:1;transform:scale(1.2) rotate(22deg)}60%{opacity:.85;transform:scale(.95) rotate(28deg)}}
   @media (prefers-reduced-motion:no-preference){
     .rally.on .stamp.done{animation:stampIn .55s cubic-bezier(.2,1.25,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .06s)}
     .rally.on .stamp.done .check{animation:checkPop .45s cubic-bezier(.2,1.7,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .33s)}
-    .rally.on .stamp.done .medal{animation:glowPulsePink 3.2s ease-in-out infinite;animation-delay:calc(var(--i,0)*75ms + .7s)}
-    body:not(.mode-rise) .rally.on .stamp.done .medal{animation:spinRing 7s linear infinite;animation-delay:calc(var(--i,0)*-1s)}
-    body.mode-rise .rally.on .stamp.done .medal{animation-name:glowPulse}
+    .rally.on .stamp.done .medal{animation:glowPulse 3s ease-in-out infinite;animation-delay:calc(var(--i,0)*75ms + .7s)}
+    body:not(.mode-rise) .rally.on .stamp.done .medal{animation-name:glowPulseBrand}
   }
   @keyframes stampIn{0%{opacity:0;transform:scale(.55) rotate(-7deg)}55%{opacity:1;transform:scale(1.06) rotate(1.5deg)}100%{opacity:1;transform:none}}
   @keyframes checkPop{0%{transform:scale(0)}65%{transform:scale(1.35)}100%{transform:scale(1)}}
-  /* ビギナー：円リングをゴールド→ピンクで明滅（弱め） */
-  @keyframes glowPulsePink{
-    0%,100%{box-shadow:0 0 0 4px rgba(231,162,78,.28), 0 8px 20px -8px rgba(231,162,78,.4)}
-    50%{box-shadow:0 0 0 4px rgba(255,92,158,.5), 0 0 15px -3px rgba(255,82,150,.4), 0 10px 24px -8px rgba(255,92,158,.48)}
+  /* ビギナー：円リングのグローをブランド色(purple↔pink)で呼吸（RISEと同じ動き） */
+  @keyframes glowPulseBrand{
+    0%,100%{box-shadow:0 0 0 4px rgba(124,77,255,.14), 0 8px 22px -8px rgba(124,77,255,.42)}
+    50%{box-shadow:0 0 0 6px rgba(255,61,119,.32), 0 0 18px -3px rgba(124,77,255,.42), 0 12px 28px -6px rgba(255,61,119,.5)}
   }
   /* RISE：元のアクセント(オレンジ)グロー（弱め） */
   @keyframes glowPulse{
