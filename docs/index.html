@@ -261,19 +261,16 @@
   }
   @keyframes twinkle{0%,100%{opacity:0;transform:scale(.4) rotate(0)}42%{opacity:1;transform:scale(1.2) rotate(22deg)}60%{opacity:.85;transform:scale(.95) rotate(28deg)}}
   @media (prefers-reduced-motion:no-preference){
-    .rally.on .stamp.done{animation:stampIn .55s cubic-bezier(.2,1.25,.4,1) backwards, edgePulse 3.6s ease-in-out .7s infinite;animation-delay:calc(var(--i,0)*75ms + .06s), calc(var(--i,0)*75ms + .7s)}
+    .rally.on .stamp.done{animation:stampIn .55s cubic-bezier(.2,1.25,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .06s)}
     .rally.on .stamp.done .check{animation:checkPop .45s cubic-bezier(.2,1.7,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .33s)}
     .rally.on .stamp.done .medal{animation:glowPulse 3s ease-in-out infinite;animation-delay:calc(var(--i,0)*75ms + .7s)}
   }
   @keyframes stampIn{0%{opacity:0;transform:scale(.55) rotate(-7deg)}55%{opacity:1;transform:scale(1.06) rotate(1.5deg)}100%{opacity:1;transform:none}}
   @keyframes checkPop{0%{transform:scale(0)}65%{transform:scale(1.35)}100%{transform:scale(1)}}
-  @keyframes edgePulse{
-    0%,100%{border-color:#E7A24E;box-shadow:0 0 0 0 transparent, var(--shadow)}
-    50%{border-color:#FF4E97;box-shadow:0 0 26px -1px rgba(255,70,150,.66), 0 0 9px rgba(255,175,120,.4), var(--shadow)}
-  }
+  /* 円（メダル）のリングをゴールド→ピンクで明滅 */
   @keyframes glowPulse{
-    0%,100%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 15%,transparent), 0 8px 22px -8px color-mix(in srgb,var(--accent) 62%,transparent)}
-    50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 26%,transparent), 0 12px 28px -6px color-mix(in srgb,var(--accent) 85%,transparent)}
+    0%,100%{box-shadow:0 0 0 4px rgba(231,162,78,.42), 0 8px 22px -8px rgba(231,162,78,.55)}
+    50%{box-shadow:0 0 0 5px rgba(255,78,151,.72), 0 0 22px -2px rgba(255,70,150,.6), 0 12px 28px -6px rgba(255,78,151,.72)}
   }
 </style>
 </head><body>
