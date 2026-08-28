@@ -251,12 +251,16 @@
   /* ===== 達成スタンプの強調＋モーション ===== */
   .stamp.done{border-color:color-mix(in srgb,var(--accent) 34%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
   @media (prefers-reduced-motion:no-preference){
-    .rally.on .stamp.done{animation:stampIn .55s cubic-bezier(.2,1.25,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .06s)}
+    .rally.on .stamp.done{animation:stampIn .55s cubic-bezier(.2,1.25,.4,1) backwards, edgePulse 3.6s ease-in-out .7s infinite;animation-delay:calc(var(--i,0)*75ms + .06s), calc(var(--i,0)*75ms + .7s)}
     .rally.on .stamp.done .check{animation:checkPop .45s cubic-bezier(.2,1.7,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .33s)}
     .rally.on .stamp.done .medal{animation:glowPulse 3s ease-in-out infinite;animation-delay:calc(var(--i,0)*75ms + .7s)}
   }
   @keyframes stampIn{0%{opacity:0;transform:scale(.55) rotate(-7deg)}55%{opacity:1;transform:scale(1.06) rotate(1.5deg)}100%{opacity:1;transform:none}}
   @keyframes checkPop{0%{transform:scale(0)}65%{transform:scale(1.35)}100%{transform:scale(1)}}
+  @keyframes edgePulse{
+    0%,100%{border-color:color-mix(in srgb,var(--accent) 26%,var(--line));box-shadow:0 0 0 0 transparent, var(--shadow)}
+    50%{border-color:color-mix(in srgb,var(--accent) 62%,var(--line));box-shadow:0 0 16px -2px color-mix(in srgb,var(--accent) 48%,transparent), var(--shadow)}
+  }
   @keyframes glowPulse{
     0%,100%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 15%,transparent), 0 8px 22px -8px color-mix(in srgb,var(--accent) 62%,transparent)}
     50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 26%,transparent), 0 12px 28px -6px color-mix(in srgb,var(--accent) 85%,transparent)}
