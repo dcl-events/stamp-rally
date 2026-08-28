@@ -232,6 +232,10 @@
     background:color-mix(in srgb,var(--ink-faint) 13%,var(--surface));border:1px solid var(--line);color:var(--ink-soft)}
   .statusbar .em{font-size:16px;flex:none}
   .tabs.single{grid-template-columns:1fr}
+  .tab-mark{font-family:var(--font-num);font-size:9px;font-weight:700;letter-spacing:.03em;line-height:1;padding:2px 6px;border-radius:999px;white-space:nowrap}
+  .tab.is-target .tab-mark{border:1px solid currentColor;opacity:.92}
+  .tab.is-ref .tab-mark{opacity:.42}
+  .tab.is-ref:not([aria-selected="true"]){opacity:.72}
   .tasknote.locked b{color:var(--ink-soft)}
   .rally.locked .bundle,.rally.locked .grid.tasks{opacity:.72}
 </style>
@@ -350,14 +354,18 @@ function render(d){
   const tiers = d.tiers || [];
   if (!tiers.length){ document.getElementById("app").innerHTML = `<div class="msg"><b>対象ラリーがありません</b>このアカウントは現在スタンプラリーの対象ではありません。</div>`; return; }
   const initial = (d.name||"?").trim().charAt(0) || "?";
+  const badgeTxt = (d.status && d.status!=="在籍") ? ("🎓 " + d.status)
+    : (tiers.length===2 ? "🚀⚡ 両ラリー対象"
+      : tiers[0]==="beginner" ? "🚀 ビギナー対象" : "⚡ RISE対象");
   const chip = `<div class="liver">
       <div class="avatar">${esc(initial)}</div>
       <div class="liver-meta"><span class="nm">${esc(d.name)}</span><span class="sub">@${esc(d.username)}</span></div>
-      <span class="liver-badge" id="tierBadge"></span>
+      <span class="liver-badge" id="tierBadge">${esc(badgeTxt)}</span>
     </div>`;
   const ALL = ["beginner", "rise"];
+  const isTarget = t => tiers.includes(t);
   const tabs = `<div class="tabs" role="tablist">` + ALL.map(t=>
-      `<button class="tab" id="tab-${t}" role="tab" aria-selected="${t===tiers[0]}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp}</button>`).join("") + `</div>`;
+      `<button class="tab ${isTarget(t)?'is-target':'is-ref'}" id="tab-${t}" role="tab" aria-selected="${t===tiers[0]}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp} <span class="tab-mark">${isTarget(t)?'対象':'参考'}</span></button>`).join("") + `</div>`;
   const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status) : emptyPanel(t)).join("");
   document.getElementById("app").innerHTML = chip + tabs + panels;
   window._data = d;
@@ -385,8 +393,6 @@ function selectTier(tier){
     const tb = document.getElementById("tab-"+t); if (tb) tb.setAttribute("aria-selected", on);
   });
   document.body.classList.toggle("mode-rise", tier==="rise");
-  const badge = document.getElementById("tierBadge");
-  if (badge) badge.textContent = (d.status && d.status!=="在籍") ? ("🎓 "+d.status) : META[tier].badge;
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
