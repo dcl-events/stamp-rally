@@ -345,20 +345,31 @@ function render(d){
       <div class="liver-meta"><span class="nm">${esc(d.name)}</span><span class="sub">@${esc(d.username)}</span></div>
       <span class="liver-badge" id="tierBadge"></span>
     </div>`;
-  let tabs = "";
-  if (tiers.length > 1){
-    tabs = `<div class="tabs" role="tablist">` + tiers.map((t,i)=>
-      `<button class="tab" id="tab-${t}" role="tab" aria-selected="${i===0}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp}</button>`).join("") + `</div>`;
-  }
-  const panels = tiers.map(t=>panel(t, d[t], d.status)).join("");
+  const ALL = ["beginner", "rise"];
+  const tabs = `<div class="tabs" role="tablist">` + ALL.map(t=>
+      `<button class="tab" id="tab-${t}" role="tab" aria-selected="${t===tiers[0]}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp}</button>`).join("") + `</div>`;
+  const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status) : emptyPanel(t)).join("");
   document.getElementById("app").innerHTML = chip + tabs + panels;
   window._data = d;
   selectTier(tiers[0]);
 }
 
+function emptyPanel(tier){
+  const m = META[tier];
+  return `<section class="rally" id="rally-${tier}" role="tabpanel" style="display:none">
+    <div class="hero"><div class="hero-txt"><span class="eyebrow">${m.en}</span><h1>${m.title}</h1>
+      <div class="pts"><span>現在このラリーの対象ではありません</span></div></div></div>
+    <a class="ranklink" href="${RANK_URL[tier]}" target="_blank" rel="noopener">
+      <span class="em">${m.rankEm}</span>
+      <span class="body"><span class="main">${m.rankName}を見る</span><span class="sub">ランキングをチェックしてみましょう</span></span>
+      <span class="arw">›</span></a>
+    <div class="msg">このアカウントは現在 <b>${m.jp}</b> ラリーの対象ではありません。</div>
+  </section>`;
+}
+
 function selectTier(tier){
   const d = window._data;
-  d.tiers.forEach(t=>{
+  ["beginner", "rise"].forEach(t=>{
     const on = t===tier;
     const p = document.getElementById("rally-"+t); if (p){ p.style.display = on?"block":"none"; p.classList.toggle("on", on); }
     const tb = document.getElementById("tab-"+t); if (tb) tb.setAttribute("aria-selected", on);
