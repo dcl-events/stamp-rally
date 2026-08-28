@@ -1,0 +1,42 @@
+{
+  "_note": "しきい値・ポイントの正本。値は暫定(ダミー)。確定したらここだけ直せば全ライバー反映される。",
+  "period_label": "2026年8月",
+  "beginner": {
+    "title": "ビギナースタンプラリー",
+    "results": [
+      {"key": "dia1k",   "label": "月間 1,000ダイヤ",   "icon": "💎", "metric": "diamond",     "target": 1000,  "unit": "",   "pt": 5000},
+      {"key": "dia5k",   "label": "月間 5,000ダイヤ",   "icon": "💎", "metric": "diamond",     "target": 5000,  "unit": "",   "pt": 5000},
+      {"key": "dia10k",  "label": "月間 10,000ダイヤ",  "icon": "💎", "metric": "diamond",     "target": 10000, "unit": "",   "pt": 5000},
+      {"key": "battle1", "label": "バトルを 1回する",   "icon": "⚔️", "metric": "battle",      "target": 1,     "unit": "回", "pt": 5000},
+      {"key": "days8",   "label": "有効LIVE日数 8日",   "icon": "📅", "metric": "live_days",   "target": 8,     "unit": "日", "pt": 5000},
+      {"key": "hours25", "label": "月間LIVE時間 25時間", "icon": "⏱️", "metric": "live_hours",  "target": 25,    "unit": "h",  "pt": 5000}
+    ],
+    "tasks": {
+      "bundle_pt": 20000,
+      "items": [
+        {"key": "gift",    "label": "ギフトギャラリー全部埋める", "icon": "🎁"},
+        {"key": "profile", "label": "プロフィール充実",           "icon": "📝"},
+        {"key": "intro",   "label": "自己紹介テンプレ送付",       "icon": "💬"},
+        {"key": "heartme", "label": "ハートミー企画",             "icon": "💗"}
+      ]
+    }
+  },
+  "rise": {
+    "title": "RISEスタンプラリー",
+    "results": [
+      {"key": "dia50k",   "label": "月間 50,000ダイヤ",  "icon": "💎", "metric": "diamond",       "target": 50000,  "unit": "",   "pt": 5000},
+      {"key": "dia100k",  "label": "月間 100,000ダイヤ", "icon": "💎", "metric": "diamond",       "target": 100000, "unit": "",   "pt": 5000},
+      {"key": "dia200k",  "label": "月間 200,000ダイヤ", "icon": "💎", "metric": "diamond",       "target": 200000, "unit": "",   "pt": 5000},
+      {"key": "follow50", "label": "LIVE経由 新規フォロワー 50人", "icon": "🚀", "metric": "new_followers", "target": 50, "unit": "人", "pt": 10000}
+    ],
+    "tasks": {
+      "bundle_pt": 20000,
+      "items": [
+        {"key": "mini_toryu",     "label": "DCLミニ登竜門に参加", "icon": "🏅"},
+        {"key": "official_toryu", "label": "公式登竜門に参加",     "icon": "🎖️"},
+        {"key": "reserve_battle", "label": "予約バトルをする",     "icon": "⚔️"},
+        {"key": "openchat",       "label": "オープンチャットを作る", "icon": "💬"}
+      ]
+    }
+  }
+}

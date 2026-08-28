@@ -1,0 +1,61 @@
+name: Daily generate & deploy
+
+on:
+  # 本命：外部スケジューラ or 朝ルーティンから叩く
+  #   POST /repos/dcl-events/stamp-rally/dispatches  {"event_type":"daily-update"}
+  repository_dispatch:
+    types: [daily-update]
+  # 保険：GitHub純正スケジュール（朝ルーティン10:00 JSTの後に回す）
+  schedule:
+    - cron: '30 1 * * *'   # 01:30 UTC = 10:30 JST
+    - cron: '30 3 * * *'   # 03:30 UTC = 12:30 JST（遅延時の保険）
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: 依存インストール
+        run: pip install -r requirements.txt
+
+      - name: ライバー別JSONを生成
+        env:
+          GOOGLE_SERVICE_ACCOUNT: ${{ secrets.GOOGLE_SERVICE_ACCOUNT }}
+        run: python tools/gen.py
+
+      - name: 変更を自動コミット
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "変更なし"
+          else
+            git commit -m "chore: update rally data (auto, cloud)"
+            git push
+          fi
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - id: deploy
+        uses: actions/deploy-pages@v4
