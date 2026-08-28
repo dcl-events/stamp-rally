@@ -247,6 +247,20 @@
   .tab.is-ref:not([aria-selected="true"]){opacity:.42}
   .tasknote.locked b{color:var(--ink-soft)}
   .rally.locked .bundle,.rally.locked .grid.tasks{opacity:.72}
+
+  /* ===== 達成スタンプの強調＋モーション ===== */
+  .stamp.done{border-color:color-mix(in srgb,var(--accent) 34%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
+  @media (prefers-reduced-motion:no-preference){
+    .rally.on .stamp.done{animation:stampIn .55s cubic-bezier(.2,1.25,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .06s)}
+    .rally.on .stamp.done .check{animation:checkPop .45s cubic-bezier(.2,1.7,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .33s)}
+    .rally.on .stamp.done .medal{animation:glowPulse 3s ease-in-out infinite;animation-delay:calc(var(--i,0)*75ms + .7s)}
+  }
+  @keyframes stampIn{0%{opacity:0;transform:scale(.55) rotate(-7deg)}55%{opacity:1;transform:scale(1.06) rotate(1.5deg)}100%{opacity:1;transform:none}}
+  @keyframes checkPop{0%{transform:scale(0)}65%{transform:scale(1.35)}100%{transform:scale(1)}}
+  @keyframes glowPulse{
+    0%,100%{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 15%,transparent), 0 8px 22px -8px color-mix(in srgb,var(--accent) 62%,transparent)}
+    50%{box-shadow:0 0 0 7px color-mix(in srgb,var(--accent) 26%,transparent), 0 12px 28px -6px color-mix(in srgb,var(--accent) 85%,transparent)}
+  }
 </style>
 </head><body>
 <div class="wrap">
@@ -273,10 +287,10 @@ const META = {
 const fmt = n => Number(n).toLocaleString("ja-JP");
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 
-function resultCard(r){
+function resultCard(r, i){
   const pt = `<span class="pt">${fmt(r.pt)}pt</span>`;
   if (r.done){
-    return `<div class="stamp s-result done"><span class="kind">成果</span>${pt}
+    return `<div class="stamp s-result done" style="--i:${i||0}"><span class="kind">成果</span>${pt}
       <div class="medal"><span class="emo">${r.icon}</span><span class="check">✓</span></div>
       <div class="ttl">${esc(r.label)}</div><div class="thr">${fmt(r.target)}${r.unit} 達成</div><div class="state">達成</div></div>`;
   }
@@ -289,9 +303,9 @@ function resultCard(r){
     <div class="state">あと ${fmt(Math.round(remain*10)/10)}${r.unit}</div></div>`;
 }
 
-function taskCard(it, locked){
+function taskCard(it, locked, i){
   if (it.done){
-    return `<div class="stamp s-task done"><span class="kind">課題</span>
+    return `<div class="stamp s-task done" style="--i:${i||0}"><span class="kind">課題</span>
       <div class="medal"><span class="emo">${it.icon}</span><span class="check">✓</span></div>
       <div class="ttl">${esc(it.label)}</div><div class="thr"></div><div class="state">${esc(it.done_on)||"達成"}</div></div>`;
   }
@@ -351,11 +365,11 @@ function panel(tier, b, status){
       <span class="body"><span class="main">${m.rankName}を見る</span><span class="sub">${rankSub}</span></span>
       <span class="arw">›</span></a>
     <div class="section-h"><span class="axis">成果</span><span class="en">Results</span><span class="rule"></span><span class="sub"><b>${fmt(rEarn)}</b> / ${fmt(rMax)}pt</span></div>
-    <div class="grid">${b.results.map(resultCard).join("")}</div>
+    <div class="grid">${b.results.map((r,i)=>resultCard(r,i)).join("")}</div>
     <div class="section-h s-task"><span class="axis">課題</span><span class="en">Tasks</span><span class="rule"></span><span class="sub">全部達成で <b>+${fmt(t.bundle_pt)}pt</b></span></div>
     ${bundle}
     ${note}
-    <div class="grid tasks">${t.items.map(it=>taskCard(it, locked)).join("")}</div>
+    <div class="grid tasks">${t.items.map((it,i)=>taskCard(it, locked, i)).join("")}</div>
   </section>`;
 }
 
