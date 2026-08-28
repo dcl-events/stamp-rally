@@ -188,10 +188,10 @@ def main():
         }
         mem_b = "ビギナー" in rally
         mem_r = "RISE" in rally
-        # 両ラリー分を常に出力（項目は対象外でも見せる）。
-        # ビギナー成果はRISE対象者にも反映(mem_b or mem_r)、ビギナー課題はビギナー対象者のみ(mem_b)。
+        # ビギナーはクリアしてRISEへ上がる関係。RISEにいる時点でビギナーはクリア済み＝現在の対象はRISE。
+        # ビギナー成果はRISE対象者にも反映(mem_b or mem_r)、ビギナー課題はビギナー"のみ"対象＝RISEに上がったら非対象(mem_b and not mem_r)。
         # RISE成果・課題はRISE対象者のみ(mem_r)。
-        data["beginner"] = build_tier(cfg["beginner"], "ビギナー", row_cd, r, idx, locked, mem_b or mem_r, mem_b)
+        data["beginner"] = build_tier(cfg["beginner"], "ビギナー", row_cd, r, idx, locked, mem_b or mem_r, mem_b and not mem_r)
         data["rise"] = build_tier(cfg["rise"], "RISE", row_cd, r, idx, locked, mem_r, mem_r)
         data["tiers"] = [t for t, m in (("beginner", mem_b), ("rise", mem_r)) if m]
 

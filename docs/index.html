@@ -232,10 +232,17 @@
     background:color-mix(in srgb,var(--ink-faint) 13%,var(--surface));border:1px solid var(--line);color:var(--ink-soft)}
   .statusbar .em{font-size:16px;flex:none}
   .tabs.single{grid-template-columns:1fr}
-  .tab-mark{font-family:var(--font-num);font-size:9px;font-weight:700;letter-spacing:.03em;line-height:1;padding:2px 6px;border-radius:999px;white-space:nowrap}
-  .tab.is-target .tab-mark{border:1px solid currentColor;opacity:.92}
-  .tab.is-ref .tab-mark{opacity:.42}
-  .tab.is-ref:not([aria-selected="true"]){opacity:.72}
+  .tab-mark{font-family:var(--font-num);font-size:9px;font-weight:800;letter-spacing:.03em;line-height:1;padding:3px 7px;border-radius:999px;white-space:nowrap}
+  /* 対象＝目立たせる（塗り＋タブ自体も強調） */
+  .tab.is-target .tab-mark{background:var(--accent);color:#fff;border:1px solid transparent}
+  .tab.is-target[aria-selected="true"] .tab-mark{background:rgba(255,255,255,.95);color:var(--accent)}
+  .tab.is-target:not([aria-selected="true"]){background:color-mix(in srgb,var(--accent) 13%,transparent);color:var(--ink)}
+  /* クリア＝控えめの枠 */
+  .tab.is-cleared .tab-mark{border:1px solid currentColor;opacity:.8}
+  .tab.is-cleared:not([aria-selected="true"]){opacity:.8}
+  /* 参考＝しっかり後退させて対象を引き立てる */
+  .tab.is-ref .tab-mark{opacity:.6;font-weight:700}
+  .tab.is-ref:not([aria-selected="true"]){opacity:.42}
   .tasknote.locked b{color:var(--ink-soft)}
   .rally.locked .bundle,.rally.locked .grid.tasks{opacity:.72}
 </style>
@@ -316,7 +323,7 @@ function panel(tier, b, status){
   const statusbar = fullRef
     ? `<div class="statusbar"><span class="em">👀</span><div><b>参考表示</b>：現在このラリーの対象ではありません（項目の確認用・ポイントは加算されません）</div></div>`
     : (rMem && !tMem
-      ? `<div class="statusbar"><span class="em">✅</span><div><b>成果は反映されます</b>（課題は${m.jp}対象者のみ）</div></div>`
+      ? `<div class="statusbar"><span class="em">✅</span><div><b>${m.jp}クリア済み</b>（成果は反映されます／課題は${m.jp}対象者向け）</div></div>`
       : (locked
         ? `<div class="statusbar"><span class="em">🎓</span><div>ステータス：<b>${esc(status)}</b>／ 課題は締め切り。獲得ポイントは確定しています。</div></div>` : ""));
   const rankSub = tMem ? `獲得ポイントは<b>このランキングに合算</b>されます` : `ランキングをチェックしてみましょう`;
@@ -354,22 +361,28 @@ function render(d){
   const tiers = d.tiers || [];
   if (!tiers.length){ document.getElementById("app").innerHTML = `<div class="msg"><b>対象ラリーがありません</b>このアカウントは現在スタンプラリーの対象ではありません。</div>`; return; }
   const initial = (d.name||"?").trim().charAt(0) || "?";
+  const mem_r = tiers.includes("rise");
+  const mem_b = tiers.includes("beginner");
+  const primary = mem_r ? "rise" : "beginner";   // ビギナーをクリア→RISEへ。現在の対象はRISE優先
   const badgeTxt = (d.status && d.status!=="在籍") ? ("🎓 " + d.status)
-    : (tiers.length===2 ? "🚀⚡ 両ラリー対象"
-      : tiers[0]==="beginner" ? "🚀 ビギナー対象" : "⚡ RISE対象");
+    : mem_r ? "⚡ RISE対象" : "🚀 ビギナー対象";
   const chip = `<div class="liver">
       <div class="avatar">${esc(initial)}</div>
       <div class="liver-meta"><span class="nm">${esc(d.name)}</span><span class="sub">@${esc(d.username)}</span></div>
       <span class="liver-badge" id="tierBadge">${esc(badgeTxt)}</span>
     </div>`;
   const ALL = ["beginner", "rise"];
-  const isTarget = t => tiers.includes(t);
-  const tabs = `<div class="tabs" role="tablist">` + ALL.map(t=>
-      `<button class="tab ${isTarget(t)?'is-target':'is-ref'}" id="tab-${t}" role="tab" aria-selected="${t===tiers[0]}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp} <span class="tab-mark">${isTarget(t)?'対象':'参考'}</span></button>`).join("") + `</div>`;
+  const markOf = t => t==="rise"
+    ? (mem_r ? ["対象","is-target"] : ["参考","is-ref"])
+    : (mem_r ? ["クリア","is-cleared"] : (mem_b ? ["対象","is-target"] : ["参考","is-ref"]));
+  const tabs = `<div class="tabs" role="tablist">` + ALL.map(t=>{
+      const [mk,cls]=markOf(t);
+      return `<button class="tab ${cls}" id="tab-${t}" role="tab" aria-selected="${t===primary}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp} <span class="tab-mark">${mk}</span></button>`;
+    }).join("") + `</div>`;
   const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status) : emptyPanel(t)).join("");
   document.getElementById("app").innerHTML = chip + tabs + panels;
   window._data = d;
-  selectTier(tiers[0]);
+  selectTier(primary);
 }
 
 function emptyPanel(tier){
