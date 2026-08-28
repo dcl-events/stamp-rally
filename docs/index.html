@@ -301,17 +301,21 @@ function panel(tier, b, status){
     : `<div class="bundle"><span class="ic">🎯</span><div class="body">
          <div class="top"><b>課題を全部そろえて <em>+${fmt(t.bundle_pt)}pt</em></b><span>${t.done_count} / ${t.total} 達成 ・ あと${t.total-t.done_count}つ</span></div>
          <div class="track"><i style="width:${Math.round(t.done_count/t.total*100)}%"></i></div></div></div>`;
-  const member = b.member !== false;
-  const note = !member
-    ? `<div class="tasknote"><span class="em">👀</span><div>参考表示のため、達成状況は反映されません。</div></div>`
+  const rMem = b.result_member !== false;
+  const tMem = b.task_member !== false;
+  const fullRef = !rMem && !tMem;
+  const note = !tMem
+    ? `<div class="tasknote"><span class="em">👀</span><div>この課題は <b>${m.jp}ラリー対象者向け</b> です（参考表示・反映されません）。</div></div>`
     : (locked
       ? `<div class="tasknote locked"><span class="em">🔒</span><div>このラリーは<b>締め切り</b>ました（${esc(status)}）。獲得ポイントは確定しています。</div></div>`
       : `<div class="tasknote"><span class="em">📢</span><div>課題は自己申告制です。達成したら <b>DCL公式LINE</b> までご連絡ください。</div></div>`);
-  const statusbar = !member
+  const statusbar = fullRef
     ? `<div class="statusbar"><span class="em">👀</span><div><b>参考表示</b>：現在このラリーの対象ではありません（項目の確認用・ポイントは加算されません）</div></div>`
-    : (locked
-      ? `<div class="statusbar"><span class="em">🎓</span><div>ステータス：<b>${esc(status)}</b>／ 課題は締め切り。獲得ポイントは確定しています。</div></div>` : "");
-  const rankSub = member ? `獲得ポイントは<b>このランキングに合算</b>されます` : `ランキングをチェックしてみましょう`;
+    : (rMem && !tMem
+      ? `<div class="statusbar"><span class="em">✅</span><div><b>成果は反映されます</b>（課題は${m.jp}対象者のみ）</div></div>`
+      : (locked
+        ? `<div class="statusbar"><span class="em">🎓</span><div>ステータス：<b>${esc(status)}</b>／ 課題は締め切り。獲得ポイントは確定しています。</div></div>` : ""));
+  const rankSub = tMem ? `獲得ポイントは<b>このランキングに合算</b>されます` : `ランキングをチェックしてみましょう`;
 
   return `<section class="rally${locked?" locked":""}" id="rally-${tier}" role="tabpanel" style="display:none">
     <div class="hero">

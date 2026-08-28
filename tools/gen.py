@@ -104,18 +104,20 @@ def task_done(v):
     return bool(v) and v != "—"
 
 
-def build_tier(cfg_tier, prefix, row_cd, r, idx, locked, member):
+def build_tier(cfg_tier, prefix, row_cd, r, idx, locked, result_member, task_member):
     """成果=個別加点／課題=オールクリアで満額。1ティア分のブロックを返す。
-    member=False は「そのラリーの対象外」＝項目は見せるがポイントは非加算(参考表示)。"""
+    result_member / task_member を別々に持つ：
+      ・RISE対象者のビギナー成果は反映(result_member=True)するが、ビギナー課題は対象外(task_member=False)。
+      ・member=False の項目は見せるがポイント非加算(参考表示)。"""
     results = []
-    earned = 0
-    max_pt = 0
+    r_earned = 0
+    r_max = 0
     for it in cfg_tier["results"]:
-        max_pt += it["pt"]
+        r_max += it["pt"]
         val = metric_value(row_cd, it["metric"]) if row_cd else 0
         done = val >= it["target"]
         if done:
-            earned += it["pt"]
+            r_earned += it["pt"]
         results.append({
             "key": it["key"], "label": it["label"], "icon": it["icon"],
             "pt": it["pt"], "target": it["target"], "unit": it.get("unit", ""),
@@ -136,11 +138,12 @@ def build_tier(cfg_tier, prefix, row_cd, r, idx, locked, member):
                       "done": done, "done_on": raw if done else ""})
     all_done = done_count == len(items) and len(items) > 0
     bundle_earned = tcfg["bundle_pt"] if all_done else 0
-    earned += bundle_earned
-    max_pt += tcfg["bundle_pt"]
+    earned = (r_earned if result_member else 0) + (bundle_earned if task_member else 0)
+    max_pt = (r_max if result_member else 0) + (tcfg["bundle_pt"] if task_member else 0)
 
     return {
-        "member": member,
+        "result_member": result_member,
+        "task_member": task_member,
         "locked": locked,
         "results": results,
         "tasks": {"items": items, "done_count": done_count, "total": len(items),
@@ -185,9 +188,11 @@ def main():
         }
         mem_b = "ビギナー" in rally
         mem_r = "RISE" in rally
-        # 項目は対象外でも見せる＝両ラリー分を常に出力（member=Falseは参考表示）
-        data["beginner"] = build_tier(cfg["beginner"], "ビギナー", row_cd, r, idx, locked, mem_b)
-        data["rise"] = build_tier(cfg["rise"], "RISE", row_cd, r, idx, locked, mem_r)
+        # 両ラリー分を常に出力（項目は対象外でも見せる）。
+        # ビギナー成果はRISE対象者にも反映(mem_b or mem_r)、ビギナー課題はビギナー対象者のみ(mem_b)。
+        # RISE成果・課題はRISE対象者のみ(mem_r)。
+        data["beginner"] = build_tier(cfg["beginner"], "ビギナー", row_cd, r, idx, locked, mem_b or mem_r, mem_b)
+        data["rise"] = build_tier(cfg["rise"], "RISE", row_cd, r, idx, locked, mem_r, mem_r)
         data["tiers"] = [t for t, m in (("beginner", mem_b), ("rise", mem_r)) if m]
 
         json.dump(data, open(os.path.join(out_dir, f"{cid}.json"), "w", encoding="utf-8"),
