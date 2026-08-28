@@ -119,6 +119,15 @@ def main():
     out.sort(key=lambda r: (order.get(r["ステータス"], 9), torder.get(r["ラリー"], 9), r["クリエイターマネージャー"], r["ライバー名"]))
 
     print(f"対象ID {len(all_ids)}／新規 {added}・継続 {kept}・RISE卒業 {graduated}・ビギナー対象外 {dropped}")
+
+    # 名簿(ID/名前/ラリー/ステータス/URL)に変化が無ければ書き込みしない＝共有シートの無駄な洗い替え防止。
+    # 課題の申告セルは gen.py がシートから直接読むので、ここで毎日書き戻す必要はない。
+    def sig(dl):
+        return {r.get("クリエイターID"): (r.get("ライバー名", ""), r.get("ラリー", ""), r.get("ステータス", ""), r.get("個別URL", "")) for r in dl}
+    if not DRY and sig(existing_rows) == sig(out):
+        print("名簿に変更なし → 書き込みスキップ")
+        return
+
     if DRY:
         print("[dry-run] 書き込みしない。先頭3行:")
         for r in out[:3]:
