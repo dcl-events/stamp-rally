@@ -75,7 +75,15 @@ def read_tab(sh, gid):
 def load_creator_data(sh):
     _, rows = read_tab(sh, CREATOR_GID)
     by_id = {r["クリエイターID"]: r for r in rows if r.get("クリエイターID")}
-    return by_id, f"クリエイターデータ_Claude(gid={CREATOR_GID})"
+    # 対象月は creator_data の「データ期間」(例 2026-09-01 ~ 2026-09-30)が正。
+    # backstage は約2日遅れなので、月初1〜2日はまだ前月を返す＝それがそのまま対象月になる。
+    period = ""
+    for r in rows:
+        m = re.match(r"(\d{4})-(\d{2})", (r.get("データ期間") or "").strip())
+        if m:
+            period = f"{int(m.group(1))}年{int(m.group(2))}月"
+            break
+    return by_id, f"クリエイターデータ_Claude(gid={CREATOR_GID})", period
 
 
 def metric_value(row, metric):
@@ -96,6 +104,20 @@ def load_task_sheet(sh):
 def cell(r, idx, name):
     i = idx.get(name)
     return (r[i].strip() if (i is not None and i < len(r)) else "")
+
+
+def norm_status(v):
+    """申告シートの「参加状況」(例: 🟢 9月 参加中 / 🎓 8月まで RISE卒業)を
+    機械用ステータス(在籍 / RISE卒業 / ビギナー対象外)へ正規化する。
+    旧表記(在籍 等)もそのまま通す＝どちらの世代のシートでも動く。"""
+    v = (v or "").strip()
+    if not v or "参加中" in v or v == "在籍":
+        return "在籍"
+    if "RISE卒業" in v:
+        return "RISE卒業"
+    if "ビギナー対象外" in v:
+        return "ビギナー対象外"
+    return "対象外"
 
 
 def task_done(v):
@@ -156,7 +178,7 @@ def build_tier(cfg_tier, prefix, row_cd, r, idx, locked, result_member, task_mem
 def main():
     cfg = json.load(open(os.path.join(ROOT, "config", "thresholds.json"), encoding="utf-8"))
     sh = gclient().open_by_key(SPREADSHEET_ID)
-    cd, cd_file = load_creator_data(sh)
+    cd, cd_file, period = load_creator_data(sh)
     header, idx, rows = load_task_sheet(sh)
     JST = timezone(timedelta(hours=9))
     now = datetime.now(JST)
@@ -173,7 +195,7 @@ def main():
         if not cid:
             continue
         rally = cell(r, idx, "ラリー")
-        status = cell(r, idx, "ステータス") or "在籍"
+        status = norm_status(cell(r, idx, "参加状況") or cell(r, idx, "ステータス"))
         locked = status != "在籍"
         row_cd = cd.get(cid)
 
@@ -184,7 +206,7 @@ def main():
             "manager": cell(r, idx, "クリエイターマネージャー"),
             "backstage": cell(r, idx, "バックステージ"),
             "status": status,
-            "period": cfg.get("period_label", ""),
+            "period": period or cfg.get("period_label", ""),
             "updated": updated,
             "updated_at": updated_at,
             "tiers": [],
@@ -203,9 +225,10 @@ def main():
         written += 1
         manifest.append({"id": cid, "name": data["name"], "tiers": data["tiers"], "status": status})
 
-    json.dump({"updated": updated, "source": cd_file, "count": written, "livers": manifest},
+    json.dump({"updated": updated, "period": period or cfg.get("period_label", ""),
+               "source": cd_file, "count": written, "livers": manifest},
               open(os.path.join(out_dir, "_manifest.json"), "w", encoding="utf-8"), ensure_ascii=False, indent=2)
-    print(f"creator_data: {cd_file}")
+    print(f"creator_data: {cd_file} / 対象月: {period or cfg.get('period_label','')}")
     print(f"申告シート: {len(rows)}行")
     print(f"生成: docs/data/*.json = {written}件")
 
