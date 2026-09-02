@@ -154,6 +154,9 @@
   .section-h .rule{flex:1;height:1px;background:var(--line);min-width:10px}
   .section-h .sub{font-family:var(--font-num);font-size:11.5px;color:var(--ink-soft);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
   .section-h .sub b{color:var(--accent)}
+  .section-h .chip{font-family:var(--font-num);font-size:10.5px;font-weight:700;letter-spacing:.02em;padding:3px 9px;border-radius:999px;
+    color:var(--accent);background:color-mix(in srgb,var(--accent) 14%,transparent);
+    border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);white-space:nowrap;flex:none}
 
   /* task bundle */
   .bundle{--accent:var(--task);display:flex;align-items:center;gap:13px;margin-bottom:14px;padding:13px 15px;border-radius:16px;
@@ -326,7 +329,7 @@ function taskCard(it, locked, i){
     <div class="ttl">${esc(it.label)}</div><div class="thr"></div><div class="state">${locked?"締め切り":"未達成"}</div></div>`;
 }
 
-function panel(tier, b, status){
+function panel(tier, b, status, period){
   const m = META[tier];
   const locked = !!b.locked;
   const rEarn = b.results.filter(r=>r.done).reduce((s,r)=>s+r.pt,0);
@@ -359,7 +362,7 @@ function panel(tier, b, status){
   return `<section class="rally${locked?" locked":""}" id="rally-${tier}" role="tabpanel" style="display:none">
     <div class="hero">
       <div class="hero-txt">
-        <span class="eyebrow">${m.en} · 成果 &amp; 課題</span>
+        <span class="eyebrow">${m.en}${period ? " · " + esc(period) : ""}</span>
         <h1>${m.title}</h1>
         <div class="pts"><b>${fmt(b.earned_pt)}</b><span>/ ${fmt(b.max_pt)} pt 獲得</span></div>
       </div>
@@ -376,9 +379,9 @@ function panel(tier, b, status){
       <span class="em">${m.rankEm}</span>
       <span class="body"><span class="main">${m.rankName}を見る</span><span class="sub">${rankSub}</span></span>
       <span class="arw">›</span></a>
-    <div class="section-h"><span class="axis">成果</span><span class="en">Results</span><span class="rule"></span><span class="sub"><b>${fmt(rEarn)}</b> / ${fmt(rMax)}pt</span></div>
+    <div class="section-h"><span class="axis">成果</span><span class="en">Results</span>${period ? `<span class="chip">${esc(period)}の実績</span>` : ""}<span class="rule"></span><span class="sub"><b>${fmt(rEarn)}</b> / ${fmt(rMax)}pt</span></div>
     <div class="grid">${b.results.map((r,i)=>resultCard(r,i)).join("")}</div>
-    <div class="section-h s-task"><span class="axis">課題</span><span class="en">Tasks</span><span class="rule"></span><span class="sub">全部達成で <b>+${fmt(t.bundle_pt)}pt</b></span></div>
+    <div class="section-h s-task"><span class="axis">課題</span><span class="en">Tasks</span><span class="chip">通年・一度クリアで確定</span><span class="rule"></span><span class="sub">全部達成で <b>+${fmt(t.bundle_pt)}pt</b></span></div>
     ${bundle}
     ${note}
     <div class="grid tasks">${t.items.map((it,i)=>taskCard(it, locked, i)).join("")}</div>
@@ -407,7 +410,7 @@ function render(d){
       const [mk,cls]=markOf(t);
       return `<button class="tab ${cls}" id="tab-${t}" role="tab" aria-selected="${t===primary}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp} <span class="tab-mark">${mk}</span></button>`;
     }).join("") + `</div>`;
-  const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status) : emptyPanel(t)).join("");
+  const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status, d.period || "") : emptyPanel(t)).join("");
   document.getElementById("app").innerHTML = chip + tabs + panels;
   const lu = document.getElementById("lastUpdated");
   if (lu && d.updated_at) lu.textContent = "最終更新 " + d.updated_at;
