@@ -180,3 +180,24 @@ creator_data: クリエイターデータ_Claude(gid=1208970074) / 対象月: 20
 生成: docs/data/*.json = 60件
 [2026-09-03 10:31:58] ✅ push 完了
 [2026-09-03 10:31:58] ===== 完了 =====
+[2026-09-04 10:37:12] ===== 開始 =====
+/Users/sukeaki.ito/Claude/pococha/.venv/lib/python3.9/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/sukeaki.ito/Claude/pococha/.venv/lib/python3.9/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/sukeaki.ito/Claude/pococha/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+対象月 2026-09（データ反映 〜09-02／2日経過）
+snapshot ビギナー 2026-09/11名・RISE 2026-09/17名　※月初2日目のため降格判定は据え置き
+対象ID 65／新規 2・継続 63（うち反映待ち 37）・RISE卒業 0・ビギナー対象外 0
+URL送付: {'送る': 65}
+全面書き込み: 65行 (A1:T67)
+/Users/sukeaki.ito/Claude/pococha/.venv/lib/python3.9/site-packages/google/auth/__init__.py:54: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/sukeaki.ito/Claude/pococha/.venv/lib/python3.9/site-packages/google/oauth2/__init__.py:40: FutureWarning: You are using a Python version 3.9 past its end of life. Google will update google-auth with critical bug fixes on a best-effort basis, but not with any other fixes or features. Please upgrade your Python version, and then update google-auth.
+  warnings.warn(eol_message.format("3.9"), FutureWarning)
+/Users/sukeaki.ito/Claude/pococha/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+creator_data: クリエイターデータ_Claude(gid=1208970074) / 対象月: 2026年9月
+申告シート: 65行
+生成: docs/data/*.json = 65件
