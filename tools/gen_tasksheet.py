@@ -17,6 +17,11 @@
     T URL送付      … 送る / 保留（未配信） / 不要（◯月で終了）＝これで送付対象を絞る
     対象月 = creator_data の「データ期間」＝ backstage が今返している月（今日-2日基準）
 
+  ■ 月替わりの扱い（2026-09-04 追加）
+    ランキング側は月スコープ（snapshot が {"month","ranks"} 形式・月初に名簿がリセットされる）。
+    新しい月の snapshot に居ない＝離脱ではないので、対象月の経過が GRACE_DAYS 以内、
+    または snapshot がまだ当月に更新されていない間は、誰も降格させず在籍のまま据え置く。
+
   実行: ~/Claude/pococha/.venv/bin/python tools/gen_tasksheet.py [--dry]
 
   ★snapshot(event-rankings/data)が必要＝ランキング日次ルーティンの後に走らせる想定（ローカル）。
@@ -115,10 +120,29 @@ def live_state(c, ym, elapsed):
     return f"🔴 未配信（先月も0）", "stop"
 
 
-def main():
-    beg = json.load(open(f"{RANK_DATA}/beginner_snapshot.json"))
-    rise = json.load(open(f"{RANK_DATA}/rise_snapshot.json"))
+def load_snapshot(path, ym):
+    """ランキングのsnapshotを読む。
+    新形式 {"month": "YYYY-MM", "ranks": {cid: {...}}} / 旧形式 {cid: {...}} の両対応。
+    戻り値 (その snapshot の月, ranks)。月が対象月と違う＝まだ当月分に更新されていない。"""
+    snap = json.load(open(path))
+    if isinstance(snap, dict) and "ranks" in snap:
+        return (snap.get("month") or ""), (snap.get("ranks") or {})
+    return ym, snap                       # 旧形式は月を持たないので対象月とみなす
 
+
+def base_of(status):
+    """既存行の「参加状況」から 在籍/RISE卒業/ビギナー対象外 を読み戻す。"""
+    s = (status or "").strip()
+    if not s or "参加中" in s or s == "在籍":
+        return "在籍"
+    if "RISE卒業" in s:
+        return "RISE卒業"
+    if "ビギナー対象外" in s:
+        return "ビギナー対象外"
+    return "対象外"
+
+
+def main():
     if os.environ.get("GOOGLE_SERVICE_ACCOUNT"):
         creds = Credentials.from_service_account_info(json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"]), scopes=SCOPES)
     else:
@@ -134,8 +158,17 @@ def main():
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
     elapsed = asof.day if asof.strftime("%Y-%m") == ym else 31
 
+    bmonth, beg = load_snapshot(f"{RANK_DATA}/beginner_snapshot.json", ym)
+    rmonth, rise = load_snapshot(f"{RANK_DATA}/rise_snapshot.json", ym)
+    # ランキングは月替わりで名簿がリセットされ、当月ptを積んだ人から順に載っていく。
+    # そのため「新しい月の snapshot に居ない」は離脱の証拠にならない。
+    #   ・snapshot がまだ前月のまま      → 降格判定に使わない（据え置き）
+    #   ・対象月の経過が GRACE_DAYS 以内 → 降格判定に使わない（据え置き）
+    stale = (bmonth != ym) or (rmonth != ym)
+    roster_grace = stale or (elapsed <= GRACE_DAYS)
+
     all_ids = set(existing) | set(beg) | set(rise)
-    added = graduated = dropped = kept = 0
+    added = graduated = dropped = kept = waiting = 0
     out = []
     for cid in all_ids:
         prev = existing.get(cid, {})
@@ -161,6 +194,15 @@ def main():
                 added += 1
             else:
                 kept += 1
+        elif roster_grace and base_of(prev.get("参加状況")) == "在籍" and cid in existing:
+            # 月替わり直後 or snapshot が当月未反映。まだランキングに載っていないだけ＝在籍据え置き。
+            # 最終参加月は当月の名簿に載るまで進めない（後で離脱が確定したとき「◯月まで」を正しく出すため）
+            rally = prev_rally
+            base = "在籍"
+            last_m = last_m or ym
+            status = f"🟢 {mlabel(ym)} 参加中（{mlabel(ym)}ランキング反映待ち）"
+            waiting += 1
+            kept += 1
         else:  # snapshotから消えた＝離脱。最終参加月は凍結
             rally = prev_rally
             last_m = last_m or ym
@@ -200,7 +242,11 @@ def main():
         out.append(row)
 
     print(f"対象月 {ym}（データ反映 〜{asof:%m-%d}／{elapsed}日経過）")
-    print(f"対象ID {len(all_ids)}／新規 {added}・継続 {kept}・RISE卒業 {graduated}・ビギナー対象外 {dropped}")
+    print(f"snapshot ビギナー {bmonth}/{len(beg)}名・RISE {rmonth}/{len(rise)}名"
+          + ("　※当月未反映のため降格判定は据え置き" if stale else
+             f"　※月初{elapsed}日目のため降格判定は据え置き" if roster_grace else ""))
+    print(f"対象ID {len(all_ids)}／新規 {added}・継続 {kept}（うち反映待ち {waiting}）"
+          f"・RISE卒業 {graduated}・ビギナー対象外 {dropped}")
     from collections import Counter
     print("URL送付:", dict(Counter(r["URL送付"] for r in out)))
 
@@ -219,7 +265,9 @@ def main():
 
     # 名簿(ID集合)が変わっていなければ既存の行順を守り、自分が持つ列だけを部分更新する。
     # ＝人が入力する課題列(I〜P)には一切触らない＝入力中の取りこぼしリスクを最小化。
-    same_roster = (cur_header == HEADER) and (list(existing) == [r.get("クリエイターID") for r in existing_rows])
+    # ★比較対象は「既存シートのID集合」と「今回算出したID集合」。
+    #   （既存行どうしを比べると常に一致してしまい、新規ライバーが書かれない）
+    same_roster = (cur_header == HEADER) and (set(existing) == {r["クリエイターID"] for r in out})
     if same_roster:
         by_id = {r["クリエイターID"]: r for r in out}
         ordered = [by_id[r["クリエイターID"]] for r in existing_rows]
