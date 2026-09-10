@@ -248,14 +248,19 @@ def main():
         row["配信状況"] = lstate
         row["URL送付"] = send
         row["_base"] = base
-        # 課題セル：既存を温存。新規/非該当は空 or 「—」
-        active_b = in_b or ("ビギナー" in prev_rally)
-        active_r = in_r or ("RISE" in prev_rally)
-        # 既存かつ同名列だけ温存。列名が変わった/新規列は該当性で 空欄(対象) or 「—」(対象外)。
+        # 課題セルの対象判定（ページのtask_memberと一致させる）：
+        #   ビギナー課題＝純ビギナーのみ(mem_b and not mem_r)／RISE課題＝RISE含む(mem_r)。
+        #   対象は「達成/日付だけ温存・それ以外は空欄」で誤「—」も自己修復、対象外は「—」。
+        mem_b = "ビギナー" in rally
+        mem_r = "RISE" in rally
+        beg_app = mem_b and not mem_r
+        rise_app = mem_r
         for col in BEG_TASKS:
-            row[col] = prev[col] if (cid in existing and col in prev) else ("" if active_b else "—")
+            old = (prev.get(col, "") if cid in existing else "").strip()
+            row[col] = (old if old not in ("", "—") else "") if beg_app else "—"
         for col in RISE_TASKS:
-            row[col] = prev[col] if (cid in existing and col in prev) else ("" if active_r else "—")
+            old = (prev.get(col, "") if cid in existing else "").strip()
+            row[col] = (old if old not in ("", "—") else "") if rise_app else "—"
         out.append(row)
 
     print(f"対象月 {ym}（データ反映 〜{asof:%m-%d}／{elapsed}日経過）")
