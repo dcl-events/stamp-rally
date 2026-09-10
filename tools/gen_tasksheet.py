@@ -251,10 +251,11 @@ def main():
         # 課題セル：既存を温存。新規/非該当は空 or 「—」
         active_b = in_b or ("ビギナー" in prev_rally)
         active_r = in_r or ("RISE" in prev_rally)
+        # 既存かつ同名列だけ温存。列名が変わった/新規列は該当性で 空欄(対象) or 「—」(対象外)。
         for col in BEG_TASKS:
-            row[col] = prev.get(col, "") if cid in existing else ("" if active_b else "—")
+            row[col] = prev[col] if (cid in existing and col in prev) else ("" if active_b else "—")
         for col in RISE_TASKS:
-            row[col] = prev.get(col, "") if cid in existing else ("" if active_r else "—")
+            row[col] = prev[col] if (cid in existing and col in prev) else ("" if active_r else "—")
         out.append(row)
 
     print(f"対象月 {ym}（データ反映 〜{asof:%m-%d}／{elapsed}日経過）")
