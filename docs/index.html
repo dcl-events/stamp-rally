@@ -291,10 +291,9 @@
 </div>
 
 <script>
-const RANK_URL = {
-  beginner: "https://dcl-events.github.io/rankings/tiktok-202608-newcomer.html",
-  rise:     "https://dcl-events.github.io/rankings/tiktok-202608-rise.html",
-};
+// ランキングは当月ページを自動で指す（gen.pyが rank_month=対象月 を各JSONに付与）
+let RANK_MONTH = "202609";
+const rankUrl = tier => `https://dcl-events.github.io/rankings/tiktok-${RANK_MONTH}-${tier==="beginner"?"newcomer":"rise"}.html`;
 const META = {
   beginner: {en:"Beginner", jp:"ビギナー", title:"ビギナースタンプラリー", badge:"🚀 ビギナー", rankEm:"🌱", rankName:"ビギナーランキング"},
   rise:     {en:"Rise",     jp:"RISE",     title:"RISEスタンプラリー",   badge:"⚡ RISE",   rankEm:"⚡", rankName:"RISEランキング"},
@@ -375,7 +374,7 @@ function panel(tier, b, status, period){
       </div>
     </div>
     ${statusbar}
-    <a class="ranklink" href="${RANK_URL[tier]}" target="_blank" rel="noopener">
+    <a class="ranklink" href="${rankUrl(tier)}" target="_blank" rel="noopener">
       <span class="em">${m.rankEm}</span>
       <span class="body"><span class="main">${m.rankName}を見る</span><span class="sub">${rankSub}</span></span>
       <span class="arw">›</span></a>
@@ -410,6 +409,7 @@ function render(d){
       const [mk,cls]=markOf(t);
       return `<button class="tab ${cls}" id="tab-${t}" role="tab" aria-selected="${t===primary}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp} <span class="tab-mark">${mk}</span></button>`;
     }).join("") + `</div>`;
+  if (d.rank_month) RANK_MONTH = d.rank_month;
   const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status, d.period || "") : emptyPanel(t)).join("");
   document.getElementById("app").innerHTML = chip + tabs + panels;
   const lu = document.getElementById("lastUpdated");
@@ -423,7 +423,7 @@ function emptyPanel(tier){
   return `<section class="rally" id="rally-${tier}" role="tabpanel" style="display:none">
     <div class="hero"><div class="hero-txt"><span class="eyebrow">${m.en}</span><h1>${m.title}</h1>
       <div class="pts"><span>現在このラリーの対象ではありません</span></div></div></div>
-    <a class="ranklink" href="${RANK_URL[tier]}" target="_blank" rel="noopener">
+    <a class="ranklink" href="${rankUrl(tier)}" target="_blank" rel="noopener">
       <span class="em">${m.rankEm}</span>
       <span class="body"><span class="main">${m.rankName}を見る</span><span class="sub">ランキングをチェックしてみましょう</span></span>
       <span class="arw">›</span></a>

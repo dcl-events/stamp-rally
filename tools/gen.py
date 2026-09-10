@@ -184,6 +184,7 @@ def main():
     now = datetime.now(JST)
     updated = now.strftime("%Y-%m-%d")
     updated_at = now.strftime("%Y/%m/%d %H:%M") + " JST"
+    rank_month = (now - timedelta(days=2)).strftime("%Y%m")  # ランキング対象月(Backstage2日遅れに合わせる=毎月自動)
 
     out_dir = os.path.join(ROOT, "docs", "data")
     os.makedirs(out_dir, exist_ok=True)
@@ -209,6 +210,7 @@ def main():
             "period": period or cfg.get("period_label", ""),
             "updated": updated,
             "updated_at": updated_at,
+            "rank_month": rank_month,
             "tiers": [],
         }
         mem_b = "ビギナー" in rally
