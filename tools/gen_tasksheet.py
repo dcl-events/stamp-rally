@@ -5,12 +5,11 @@
   ・新規ライバー          → 行を追加（課題セルは空）
   ・継続ライバー          → 識別/ラリー/URLを更新、課題申告は温存
   ・ビギナー→RISE昇格     → ラリー切替（在籍のまま）
-  ・RISEから外れた        → 削除せず 参加状況=「◯月まで RISE卒業」
-  ・ビギナーから外れた     → 削除せず 参加状況=「◯月まで ビギナー対象外」
+  ・名簿から外れた        → 削除せず 参加状況=「🔴 対象外」（時期は最終参加月、種別はラリー列）
   ※誰も削除しない。
 
   ■ 月が分かるようにするための列（2026-09-02 追加）
-    G 参加状況     … 「🟢 9月 参加中」/「🎓 8月まで RISE卒業」＝対象月つき
+    G 参加状況     … 当月の状態のみ：🟢 9月 参加中／🟡 9月 参加中（反映待ち）／🔴 対象外
     Q 初回参加月   … 初めて名簿に載った月（以後ずっと温存）
     R 最終参加月   … 最後に名簿に載っていた月（在籍中は対象月に追従／離脱で凍結）
     S 配信状況     … creator_data の当月LIVE時間から自動（月初は「判定待ち」）
@@ -66,7 +65,7 @@ def col_a1(n):
 
 def sort_participation(ws, ndata):
     """参加中を上・対象外/卒業を下へ並べ替える（行ごとサーバ側ソート＝課題も一緒に安全に移動）。
-    参加状況G降順(🟢参加中→🎓卒業→⚪️対象外)→配信状況S降順→マネージャー→名前。"""
+    参加状況G降順(🟢参加中→🟡反映待ち→🔴対象外)→配信状況S降順→マネージャー→名前。"""
     if ndata <= 1:
         return
     ws.spreadsheet.batch_update({"requests": [{"sortRange": {
@@ -213,22 +212,23 @@ def main():
                 kept += 1
         elif roster_grace and base_of(prev.get("参加状況")) == "在籍" and cid in existing:
             # 月替わり直後 or snapshot が当月未反映。まだランキングに載っていないだけ＝在籍据え置き。
-            # 最終参加月は当月の名簿に載るまで進めない（後で離脱が確定したとき「◯月まで」を正しく出すため）
+            # 最終参加月は当月の名簿に載るまで進めない（離脱が確定したとき最終参加月を正しく凍結するため）
             rally = prev_rally
             base = "在籍"
             last_m = last_m or ym
-            status = f"🟢 {mlabel(ym)} 参加中（{mlabel(ym)}ランキング反映待ち）"
+            status = f"🟡 {mlabel(ym)} 参加中（反映待ち）"
             waiting += 1
             kept += 1
-        else:  # snapshotから消えた＝離脱。最終参加月は凍結
+        else:  # snapshotから消えた＝離脱。参加状況は当月の状態(=対象外)のみ。時期は最終参加月、種別はラリー列が持つ。
             rally = prev_rally
             last_m = last_m or ym
+            status = "🔴 対象外"
             if "RISE" in prev_rally:
-                base = "RISE卒業"; status = f"🎓 {mlabel(last_m)}まで RISE卒業"; graduated += 1
+                base = "RISE卒業"; graduated += 1
             elif "ビギナー" in prev_rally:
-                base = "ビギナー対象外"; status = f"⚪️ {mlabel(last_m)}まで ビギナー対象外"; dropped += 1
+                base = "ビギナー対象外"; dropped += 1
             else:
-                base = "対象外"; status = f"⚪️ {mlabel(last_m)}まで 対象外"
+                base = "対象外"
 
         lstate, lcode = live_state(cd.get(cid), ym, elapsed)
         if base != "在籍":
