@@ -121,9 +121,9 @@ def norm_status(v):
 
 
 def task_done(v):
-    """達成日が入っていれば達成。空欄/「—」(非該当)/未入力は未達。"""
+    """プルダウンの「達成」or達成日が入っていれば達成。空欄/「—」(非該当)/「未達成」は未達。"""
     v = (v or "").strip()
-    return bool(v) and v != "—"
+    return v not in ("", "—", "未達成", "未達", "未")
 
 
 def build_tier(cfg_tier, prefix, row_cd, r, idx, locked, result_member, task_member):
