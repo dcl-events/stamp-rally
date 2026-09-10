@@ -73,7 +73,8 @@ def sort_participation(ws, ndata):
         "range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": 2 + ndata,
                   "startColumnIndex": 0, "endColumnIndex": len(HEADER)},
         "sortSpecs": [
-            {"dimensionIndex": 6, "sortOrder": "DESCENDING"},   # 参加状況
+            {"dimensionIndex": 6, "sortOrder": "DESCENDING"},   # 参加状況(参加中→卒業→対象外)
+            {"dimensionIndex": 5, "sortOrder": "ASCENDING"},    # ラリー(RISE→RISE(ビギナー卒業)→ビギナー)
             {"dimensionIndex": 18, "sortOrder": "DESCENDING"},  # 配信状況
             {"dimensionIndex": 3, "sortOrder": "ASCENDING"},    # マネージャー
             {"dimensionIndex": 0, "sortOrder": "ASCENDING"},    # ライバー名
@@ -202,7 +203,7 @@ def main():
         last_m = (prev.get("最終参加月") or "").strip()
 
         if in_b or in_r:  # 現在アクティブ
-            rally = "ビギナー・RISE" if (in_b and in_r) else ("ビギナー" if in_b else "RISE")
+            rally = "RISE（ビギナー卒業）" if (in_b and in_r) else ("ビギナー" if in_b else "RISE")
             base = "在籍"
             last_m = ym                                            # 在籍中は対象月に追従
             status = f"🟢 {mlabel(ym)} 参加中"
@@ -314,7 +315,7 @@ def main():
 
     # 名簿が変わった or 見出しが変わった → 並べ直して全面書き込み
     order = {"在籍": 0, "RISE卒業": 1, "ビギナー対象外": 2}
-    torder = {"ビギナー": 0, "ビギナー・RISE": 1, "RISE": 2}
+    torder = {"RISE": 0, "RISE（ビギナー卒業）": 1, "ビギナー": 2}
     out.sort(key=lambda r: (order.get(r["_base"], 9), torder.get(r["ラリー"], 9),
                             r["クリエイターマネージャー"], r["ライバー名"]))
     grid = [[note] + [""] * (width - 1), HEADER]
