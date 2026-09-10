@@ -64,6 +64,22 @@ def col_a1(n):
     return s
 
 
+def sort_participation(ws, ndata):
+    """参加中を上・対象外/卒業を下へ並べ替える（行ごとサーバ側ソート＝課題も一緒に安全に移動）。
+    参加状況G降順(🟢参加中→🎓卒業→⚪️対象外)→配信状況S降順→マネージャー→名前。"""
+    if ndata <= 1:
+        return
+    ws.spreadsheet.batch_update({"requests": [{"sortRange": {
+        "range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": 2 + ndata,
+                  "startColumnIndex": 0, "endColumnIndex": len(HEADER)},
+        "sortSpecs": [
+            {"dimensionIndex": 6, "sortOrder": "DESCENDING"},   # 参加状況
+            {"dimensionIndex": 18, "sortOrder": "DESCENDING"},  # 配信状況
+            {"dimensionIndex": 3, "sortOrder": "ASCENDING"},    # マネージャー
+            {"dimensionIndex": 0, "sortOrder": "ASCENDING"},    # ライバー名
+        ]}}]})
+
+
 def num(v):
     v = (v or "").replace(",", "").strip()
     m = re.match(r"-?\d+(\.\d+)?", v)
@@ -282,10 +298,12 @@ def main():
         ]
         if [[r.get(h, "") for h in HEAD_A + HEAD_B] for r in existing_rows] == \
            [[r.get(h, "") for h in HEAD_A + HEAD_B] for r in ordered]:
-            print("名簿・状況ともに変更なし → 書き込みスキップ")
+            sort_participation(ws, len(ordered))  # 無変更でも並びだけは保証（冪等）
+            print("名簿・状況ともに変更なし → 書き込みスキップ（並びは維持）")
             return
         ws.batch_update(data, value_input_option="RAW")
-        print(f"部分更新: {len(ordered)}行（A〜{col_a1(len(HEAD_A))} と {q0}〜{col_a1(width)}／課題列は非更新）")
+        sort_participation(ws, len(ordered))
+        print(f"部分更新: {len(ordered)}行（A〜{col_a1(len(HEAD_A))} と {q0}〜{col_a1(width)}／課題列は非更新）＋参加順ソート")
         return
 
     # 名簿が変わった or 見出しが変わった → 並べ直して全面書き込み
@@ -300,7 +318,8 @@ def main():
     ws.clear()
     ws.update(values=grid, range_name=f"A1:{col_a1(width)}{len(grid)}", value_input_option="RAW")
     ws.freeze(rows=2)
-    print(f"全面書き込み: {len(out)}行 (A1:{col_a1(width)}{len(grid)})")
+    sort_participation(ws, len(out))
+    print(f"全面書き込み: {len(out)}行 (A1:{col_a1(width)}{len(grid)})＋参加順ソート")
 
 
 if __name__ == "__main__":
