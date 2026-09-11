@@ -225,7 +225,9 @@ def main():
         json.dump(data, open(os.path.join(out_dir, f"{cid}.json"), "w", encoding="utf-8"),
                   ensure_ascii=False, separators=(",", ":"))
         written += 1
-        manifest.append({"id": cid, "name": data["name"], "tiers": data["tiers"], "status": status})
+        manifest.append({"id": cid, "name": data["name"], "tiers": data["tiers"], "status": status,
+                         "pts": {"beginner": data["beginner"]["earned_pt"],
+                                 "rise": data["rise"]["earned_pt"]}})
 
     json.dump({"updated": updated, "period": period or cfg.get("period_label", ""),
                "source": cd_file, "count": written, "livers": manifest},

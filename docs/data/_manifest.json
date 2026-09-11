@@ -10,7 +10,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 30000,
+        "rise": 15000
+      }
     },
     {
       "id": "7653087200858341393",
@@ -18,7 +22,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 30000,
+        "rise": 10000
+      }
     },
     {
       "id": "7674623215351857172",
@@ -26,7 +34,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 25000,
+        "rise": 10000
+      }
     },
     {
       "id": "7624088595162513409",
@@ -34,7 +46,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 30000,
+        "rise": 10000
+      }
     },
     {
       "id": "7614023665537253392",
@@ -42,7 +58,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 25000,
+        "rise": 0
+      }
     },
     {
       "id": "7662909175932026898",
@@ -50,7 +70,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 30000,
+        "rise": 0
+      }
     },
     {
       "id": "7669625588591738887",
@@ -58,7 +82,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 25000,
+        "rise": 0
+      }
     },
     {
       "id": "7671181817654820885",
@@ -66,7 +94,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 20000
+      }
     },
     {
       "id": "7589230918074777616",
@@ -74,7 +106,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 15000,
+        "rise": 0
+      }
     },
     {
       "id": "7667054237087727624",
@@ -82,7 +118,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 10000
+      }
     },
     {
       "id": "7608938009064685585",
@@ -90,7 +130,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 0
+      }
     },
     {
       "id": "7665721845445885969",
@@ -98,7 +142,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 15000
+      }
     },
     {
       "id": "7660634038838935572",
@@ -106,7 +154,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 0
+      }
     },
     {
       "id": "7666890522371604500",
@@ -114,7 +166,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 10000
+      }
     },
     {
       "id": "7607302400247873552",
@@ -122,7 +178,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 0
+      }
     },
     {
       "id": "7676066922177495058",
@@ -130,7 +190,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 10000
+      }
     },
     {
       "id": "7622665439918882817",
@@ -138,7 +202,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 10000
+      }
     },
     {
       "id": "7609711241124200464",
@@ -146,7 +214,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 15000,
+        "rise": 0
+      }
     },
     {
       "id": "7663442198142238740",
@@ -154,7 +226,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7675747480415469588",
@@ -163,7 +239,11 @@
         "beginner",
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 30000,
+        "rise": 10000
+      }
     },
     {
       "id": "7673013491095355412",
@@ -172,7 +252,11 @@
         "beginner",
         "rise"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 25000,
+        "rise": 10000
+      }
     },
     {
       "id": "7527308110961065985",
@@ -180,7 +264,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 10000,
+        "rise": 0
+      }
     },
     {
       "id": "7648873205352153104",
@@ -188,7 +276,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 10000,
+        "rise": 0
+      }
     },
     {
       "id": "7595545313826570256",
@@ -196,7 +288,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 10000,
+        "rise": 0
+      }
     },
     {
       "id": "7670564969674522645",
@@ -204,7 +300,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7674640091951939604",
@@ -212,7 +312,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 10000,
+        "rise": 0
+      }
     },
     {
       "id": "7667857669503614996",
@@ -220,7 +324,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7668709316886822933",
@@ -228,7 +336,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7665135915232428052",
@@ -236,7 +348,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7359136238131019781",
@@ -244,7 +360,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7673466105398312968",
@@ -252,7 +372,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7676477840698851336",
@@ -260,7 +384,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 10000,
+        "rise": 0
+      }
     },
     {
       "id": "7674838713691586568",
@@ -268,7 +396,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7677863422301782034",
@@ -276,7 +408,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7600784676386619393",
@@ -284,7 +420,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7530060676992286721",
@@ -292,7 +432,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7676463089528750087",
@@ -300,7 +444,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7682669263051669525",
@@ -308,7 +456,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7386578445720993808",
@@ -316,7 +468,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 10000,
+        "rise": 0
+      }
     },
     {
       "id": "7680752824728436743",
@@ -324,7 +480,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7680945215720701970",
@@ -332,7 +492,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7638800225255145489",
@@ -340,7 +504,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7623452514628845569",
@@ -348,7 +516,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7672298236010364949",
@@ -356,7 +528,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
     },
     {
       "id": "7605812327589412865",
@@ -364,7 +540,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "在籍"
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7641115425048215568",
@@ -372,7 +552,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 30000,
+        "rise": 15000
+      }
     },
     {
       "id": "7659976565148729365",
@@ -380,7 +564,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 25000,
+        "rise": 10000
+      }
     },
     {
       "id": "7643712168344420368",
@@ -388,7 +576,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 10000,
+        "rise": 0
+      }
     },
     {
       "id": "7614148626272796688",
@@ -396,7 +588,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7363815895833214992",
@@ -404,7 +600,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7673463079501594632",
@@ -412,7 +612,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7650249551756034064",
@@ -420,7 +624,11 @@
       "tiers": [
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7675714792967110663",
@@ -428,7 +636,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7603234508665552913",
@@ -436,7 +648,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7665745391387869191",
@@ -444,7 +660,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7657028299671011345",
@@ -452,7 +672,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7670489824880738311",
@@ -460,7 +684,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7669759217263214599",
@@ -468,7 +696,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7673506924054331399",
@@ -476,7 +708,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7665648675233808404",
@@ -484,7 +720,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7663726761670279169",
@@ -492,7 +732,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7660398809838665749",
@@ -500,7 +744,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7657052489744662545",
@@ -508,7 +756,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7628161183853428752",
@@ -516,7 +768,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7611421130909450256",
@@ -524,7 +780,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7608920083414564865",
@@ -532,7 +792,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7603738897540988929",
@@ -540,7 +804,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7664037614319714325",
@@ -548,7 +816,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7672818935829561351",
@@ -556,7 +828,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "7668644241911906322",
@@ -564,7 +840,11 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     },
     {
       "id": "クリエイターがエージェンシーを退会しました",
@@ -573,7 +853,11 @@
         "beginner",
         "rise"
       ],
-      "status": "対象外"
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
     }
   ]
 }
