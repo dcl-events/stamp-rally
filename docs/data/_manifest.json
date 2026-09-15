@@ -1,21 +1,9 @@
 {
-  "updated": "2026-09-14",
+  "updated": "2026-09-15",
   "period": "2026年9月",
   "source": "クリエイターデータ_Claude(gid=1208970074)",
   "count": 80,
   "livers": [
-    {
-      "id": "7608938009064685585",
-      "name": "全肯定みっちゃん.ᐟ.ᐟ",
-      "tiers": [
-        "rise"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 25000,
-        "rise": 10000
-      }
-    },
     {
       "id": "7666890522371604500",
       "name": "しいな🫧🌝",
@@ -37,7 +25,7 @@
       "status": "在籍",
       "pts": {
         "beginner": 25000,
-        "rise": 0
+        "rise": 5000
       }
     },
     {
@@ -60,7 +48,7 @@
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 20000,
+        "beginner": 25000,
         "rise": 20000
       }
     },
@@ -74,6 +62,18 @@
       "pts": {
         "beginner": 20000,
         "rise": 10000
+      }
+    },
+    {
+      "id": "7684102546268635143",
+      "name": "はなぼう🌸✉️",
+      "tiers": [
+        "rise"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 0
       }
     },
     {
@@ -157,7 +157,7 @@
       "status": "在籍",
       "pts": {
         "beginner": 30000,
-        "rise": 10000
+        "rise": 20000
       }
     },
     {
@@ -169,7 +169,7 @@
       "status": "在籍",
       "pts": {
         "beginner": 30000,
-        "rise": 0
+        "rise": 5000
       }
     },
     {
@@ -180,7 +180,7 @@
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 25000,
+        "beginner": 30000,
         "rise": 10000
       }
     },
@@ -193,19 +193,7 @@
       "status": "在籍",
       "pts": {
         "beginner": 30000,
-        "rise": 10000
-      }
-    },
-    {
-      "id": "7589230918074777616",
-      "name": "ちゃんり🍭💄",
-      "tiers": [
-        "rise"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 30000,
-        "rise": 0
+        "rise": 15000
       }
     },
     {
@@ -216,7 +204,7 @@
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 25000,
+        "beginner": 30000,
         "rise": 20000
       }
     },
@@ -233,6 +221,30 @@
       }
     },
     {
+      "id": "7608938009064685585",
+      "name": "全肯定みっちゃん.ᐟ.ᐟ",
+      "tiers": [
+        "rise"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 25000,
+        "rise": 10000
+      }
+    },
+    {
+      "id": "7589230918074777616",
+      "name": "ちゃんり🍭💄",
+      "tiers": [
+        "rise"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 30000,
+        "rise": 0
+      }
+    },
+    {
       "id": "7663442198142238740",
       "name": "今日もうるさい美女。",
       "tiers": [
@@ -241,55 +253,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7684102546268635143",
-      "name": "はなぼう🌸✉️",
-      "tiers": [
-        "beginner",
-        "rise"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 20000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7595545313826570256",
-      "name": "土の下絃。(ﾂﾁﾉｼﾀｲﾄ)",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 15000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7648873205352153104",
-      "name": "綾羽アキ🕊️🖌️",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 15000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7670564969674522645",
-      "name": "はる🍀",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 10000,
         "rise": 0
       }
     },
@@ -306,14 +269,14 @@
       }
     },
     {
-      "id": "7359136238131019781",
-      "name": "haienagogor",
+      "id": "7670564969674522645",
+      "name": "はる🍀",
       "tiers": [
         "beginner"
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 0,
+        "beginner": 10000,
         "rise": 0
       }
     },
@@ -325,7 +288,7 @@
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 0,
+        "beginner": 5000,
         "rise": 0
       }
     },
@@ -337,7 +300,7 @@
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 10000,
+        "beginner": 15000,
         "rise": 0
       }
     },
@@ -349,19 +312,7 @@
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 5000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7667857669503614996",
-      "name": "ちあきバグる",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 5000,
+        "beginner": 10000,
         "rise": 0
       }
     },
@@ -378,6 +329,30 @@
       }
     },
     {
+      "id": "7359136238131019781",
+      "name": "haienagogor",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7667857669503614996",
+      "name": "ちあきバグる",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
+    },
+    {
       "id": "7600784676386619393",
       "name": "みこと🐰🌸",
       "tiers": [
@@ -386,30 +361,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7674838713691586568",
-      "name": "あーるちゃん",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7530060676992286721",
-      "name": "みさと👸",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 5000,
         "rise": 0
       }
     },
@@ -426,8 +377,8 @@
       }
     },
     {
-      "id": "7677863422301782034",
-      "name": "きき",
+      "id": "7674838713691586568",
+      "name": "あーるちゃん",
       "tiers": [
         "beginner"
       ],
@@ -450,14 +401,26 @@
       }
     },
     {
-      "id": "7676463089528750087",
-      "name": "Aa-Yan.",
+      "id": "7530060676992286721",
+      "name": "みさと👸",
       "tiers": [
         "beginner"
       ],
       "status": "在籍",
       "pts": {
-        "beginner": 0,
+        "beginner": 5000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7683816245149319188",
+      "name": "絢斗 -ｹﾝﾄ-",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
         "rise": 0
       }
     },
@@ -470,6 +433,54 @@
       "status": "在籍",
       "pts": {
         "beginner": 5000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7677863422301782034",
+      "name": "きき",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7683414797873954824",
+      "name": "観月みれい💘🃏",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7676463089528750087",
+      "name": "Aa-Yan.",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7684223036823928853",
+      "name": "おどぎ",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 15000,
         "rise": 0
       }
     },
@@ -494,18 +505,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 10000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7683816245149319188",
-      "name": "絢斗 -ｹﾝﾄ-",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
         "rise": 0
       }
     },
@@ -546,18 +545,6 @@
       }
     },
     {
-      "id": "7683414797873954824",
-      "name": "観月みれい💘🃏",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 15000,
-        "rise": 0
-      }
-    },
-    {
       "id": "7638800225255145489",
       "name": "まり🍶🌶️",
       "tiers": [
@@ -578,18 +565,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7684223036823928853",
-      "name": "おどぎ",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 15000,
         "rise": 0
       }
     },
@@ -654,6 +629,30 @@
       }
     },
     {
+      "id": "7595545313826570256",
+      "name": "土の下絃。(ﾂﾁﾉｼﾀｲﾄ)",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 15000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7648873205352153104",
+      "name": "綾羽アキ🕊️🖌️",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 20000,
+        "rise": 0
+      }
+    },
+    {
       "id": "7603738897540988929",
       "name": "ちったん🐰💞",
       "tiers": [
@@ -678,18 +677,6 @@
       }
     },
     {
-      "id": "7659976565148729365",
-      "name": "まゆ🍀癒し部屋🍀",
-      "tiers": [
-        "rise"
-      ],
-      "status": "対象外",
-      "pts": {
-        "beginner": 25000,
-        "rise": 10000
-      }
-    },
-    {
       "id": "7643712168344420368",
       "name": "雲雀丘モガ@ギフトスター200位目標！",
       "tiers": [
@@ -711,6 +698,18 @@
       "pts": {
         "beginner": 30000,
         "rise": 15000
+      }
+    },
+    {
+      "id": "7659976565148729365",
+      "name": "まゆ🍀癒し部屋🍀",
+      "tiers": [
+        "rise"
+      ],
+      "status": "対象外",
+      "pts": {
+        "beginner": 30000,
+        "rise": 10000
       }
     },
     {
