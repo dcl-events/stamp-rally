@@ -257,6 +257,19 @@
       }
     },
     {
+      "id": "7684223036823928853",
+      "name": "おどぎ",
+      "tiers": [
+        "beginner",
+        "rise"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 15000,
+        "rise": 0
+      }
+    },
+    {
       "id": "7676477840698851336",
       "name": "lala🌴",
       "tiers": [
@@ -398,18 +411,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 5000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7684223036823928853",
-      "name": "おどぎ",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 15000,
         "rise": 0
       }
     },
