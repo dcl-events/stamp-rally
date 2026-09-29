@@ -81,6 +81,41 @@ def sort_participation(ws, ndata):
         ]}}]})
 
 
+def apply_task_validation(ws):
+    """課題列だけに プルダウン(達成/—) と ブラックアウト(—を灰で潰す)書式を貼り直す。
+    列を追加/移動しても列位置がズレないよう HEADER から課題列の範囲を毎回計算する
+    （検証/書式は列位置固定なので、列挿入すると元の位置に残り別の列でエラーになる＝それを自己修復）。
+    全書き換え（＝見出し/レイアウト変更）時にだけ呼ぶ。"""
+    first = HEADER.index(TASK_COLS[0])
+    last = HEADER.index(TASK_COLS[-1])
+    nrows = max(ws.row_count, 1000)
+    grey = {"red": 0.2, "green": 0.2, "blue": 0.2}
+    ncf = 0
+    for s in ws.spreadsheet.fetch_sheet_metadata(
+            {"fields": "sheets(properties(sheetId),conditionalFormats)"})["sheets"]:
+        if s["properties"]["sheetId"] == TASK_GID:
+            ncf = len(s.get("conditionalFormats", []))
+    reqs = [
+        # 全列(A〜末尾)の検証をいったんクリア → 課題列だけに再設定（他列に残った検証を除去）
+        {"setDataValidation": {"range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
+                                         "startColumnIndex": 0, "endColumnIndex": len(HEADER)}}},
+        {"setDataValidation": {"range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
+                                         "startColumnIndex": first, "endColumnIndex": last + 1},
+                               "rule": {"condition": {"type": "ONE_OF_LIST",
+                                                      "values": [{"userEnteredValue": "達成"}, {"userEnteredValue": "—"}]},
+                                        "showCustomUi": True, "strict": False}}},
+    ]
+    for i in range(ncf - 1, -1, -1):
+        reqs.append({"deleteConditionalFormatRule": {"sheetId": TASK_GID, "index": i}})
+    reqs.append({"addConditionalFormatRule": {"index": 0, "rule": {
+        "ranges": [{"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
+                    "startColumnIndex": first, "endColumnIndex": last + 1}],
+        "booleanRule": {"condition": {"type": "TEXT_EQ", "values": [{"userEnteredValue": "—"}]},
+                        "format": {"backgroundColor": grey, "textFormat": {"foregroundColor": grey}}}}}})
+    ws.spreadsheet.batch_update({"requests": reqs})
+    print(f"課題列の検証/書式を再整列: {col_a1(first + 1)}〜{col_a1(last + 1)}")
+
+
 def num(v):
     v = (v or "").replace(",", "").strip()
     m = re.match(r"-?\d+(\.\d+)?", v)
@@ -366,6 +401,7 @@ def main():
     ws.clear()
     ws.update(values=grid, range_name=f"A1:{col_a1(width)}{len(grid)}", value_input_option="RAW")
     ws.freeze(rows=2)
+    apply_task_validation(ws)   # 列レイアウトが変わった時に課題列の検証/書式を貼り直す（列ズレ自己修復）
     sort_participation(ws, len(out))
     print(f"全面書き込み: {len(out)}行 (A1:{col_a1(width)}{len(grid)})＋参加順ソート")
 
