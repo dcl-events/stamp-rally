@@ -40,6 +40,7 @@ SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 SPREADSHEET_ID = "1A-WSX4mteR-E5kY8V82dTUqoTcD0GDLA0Uq0qiDTzh4"
 TASK_GID = 1676003252
 CREATOR_GID = 1208970074
+MASTER_GID = 1135233534   # 【管理】ライバー一覧マスター（Liny URLの取得元）
 RANK_DATA = "/Users/sukeaki.ito/Claude/event-rankings/data"
 BASE_URL = "https://dcl-events.github.io/stamp-rally/?id="
 GRACE_DAYS = 7   # 対象月の経過がこの日数以内なら「配信ゼロ」は判定待ち扱い（月初の誤検知防止）
@@ -49,9 +50,9 @@ cfg = json.load(open(os.path.join(ROOT, "config", "thresholds.json"), encoding="
 BEG_TASKS = [f"【ビギナー】{t['label']}" for t in cfg["beginner"]["tasks"]["items"]]
 RISE_TASKS = [f"【RISE】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]
 IDENT = ["ライバー名", "クリエイターID", "クリエイターのユーザー名", "クリエイターマネージャー", "バックステージ"]
-HEAD_A = IDENT + ["ラリー", "参加状況", "個別URL"]                  # A〜H（このスクリプトが持つ）
-TASK_COLS = BEG_TASKS + RISE_TASKS                                  # I〜P（人が入力する。触らない）
-HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # Q〜T（このスクリプトが持つ）
+HEAD_A = IDENT + ["ラリー", "参加状況", "Liny URL", "個別URL"]      # A〜I（このスクリプトが持つ。Liny URLは参加状況と個別URLの間）
+TASK_COLS = BEG_TASKS + RISE_TASKS                                  # J〜Q（人が入力する。触らない）
+HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # R〜U（このスクリプトが持つ）
 HEADER = HEAD_A + TASK_COLS + HEAD_B
 
 
@@ -72,11 +73,11 @@ def sort_participation(ws, ndata):
         "range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": 2 + ndata,
                   "startColumnIndex": 0, "endColumnIndex": len(HEADER)},
         "sortSpecs": [
-            {"dimensionIndex": 6, "sortOrder": "DESCENDING"},   # 参加状況(参加中→卒業→対象外)
-            {"dimensionIndex": 5, "sortOrder": "ASCENDING"},    # ラリー(RISE→RISE(ビギナー卒業)→ビギナー)
-            {"dimensionIndex": 18, "sortOrder": "DESCENDING"},  # 配信状況
-            {"dimensionIndex": 3, "sortOrder": "ASCENDING"},    # マネージャー
-            {"dimensionIndex": 0, "sortOrder": "ASCENDING"},    # ライバー名
+            {"dimensionIndex": HEADER.index("参加状況"), "sortOrder": "DESCENDING"},        # 参加中→反映待ち→対象外
+            {"dimensionIndex": HEADER.index("ラリー"), "sortOrder": "ASCENDING"},           # RISE→RISE(ビギナー卒業)→ビギナー
+            {"dimensionIndex": HEADER.index("配信状況"), "sortOrder": "DESCENDING"},        # 配信状況
+            {"dimensionIndex": HEADER.index("クリエイターマネージャー"), "sortOrder": "ASCENDING"},  # マネージャー
+            {"dimensionIndex": HEADER.index("ライバー名"), "sortOrder": "ASCENDING"},       # ライバー名
         ]}}]})
 
 
@@ -158,6 +159,44 @@ def base_of(status):
     return "対象外"
 
 
+def load_liny_map(sh):
+    """【管理】ライバー一覧マスターから {配信アプリID(=TikTokクリエイターID) → Liny URL} を作る。
+    マスターは3行ヘッダ（1行目=空/結合、2行目=大分類、3行目=実見出し、4行目〜データ）。
+    URLはD列「Liny個別トークページ」をそのまま採用。空ならE列「Liny友達ID」からテンプレで生成。"""
+    try:
+        mw = next(w for w in sh.worksheets() if w.id == MASTER_GID)
+        mv = mw.get_all_values()
+    except Exception as e:
+        print(f"! マスター読込に失敗: {e} → Liny URLは空で継続")
+        return {}
+    if len(mv) < 4:
+        return {}
+    hdr = mv[2]
+    def find(sub):
+        for i, h in enumerate(hdr):
+            if sub in h:
+                return i
+        return -1
+    i_sid = find("配信アプリID")
+    i_url = find("Liny個別トーク")
+    i_fid = find("友達ID")
+    if i_sid < 0:
+        print("! マスターに『配信アプリID』列が見つからない → Liny URLは空で継続")
+        return {}
+    m = {}
+    for r in mv[3:]:
+        sid = r[i_sid].strip() if len(r) > i_sid else ""
+        if not sid:
+            continue
+        url = r[i_url].strip() if (i_url >= 0 and len(r) > i_url) else ""
+        if not url and i_fid >= 0 and len(r) > i_fid and r[i_fid].strip():
+            url = f"https://manager.liny.jp/line/visual?show=detail&member={r[i_fid].strip()}"
+        if url:
+            m[sid] = url
+    print(f"Liny URLマップ: {len(m)}件（マスターS列→Liny個別トーク）")
+    return m
+
+
 def main():
     if os.environ.get("GOOGLE_SERVICE_ACCOUNT"):
         creds = Credentials.from_service_account_info(json.loads(os.environ["GOOGLE_SERVICE_ACCOUNT"]), scopes=SCOPES)
@@ -169,6 +208,7 @@ def main():
     cd = {r["クリエイターID"]: r for r in cd_rows if r.get("クリエイターID")}
     ws, cur_header, existing_rows = read_tab(sh, TASK_GID)
     existing = {r.get("クリエイターID"): r for r in existing_rows if r.get("クリエイターID")}
+    liny_map = load_liny_map(sh)   # {配信アプリID(=クリエイターID) → Liny URL}
 
     ym = target_month(cd_rows)
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
@@ -243,6 +283,7 @@ def main():
         row = {k: v for k, v in zip(IDENT, [name, cid, uname, mgr, bs])}
         row["ラリー"] = rally
         row["参加状況"] = status
+        row["Liny URL"] = liny_map.get(cid, "")   # マスターS列(配信アプリID=クリエイターID)で突合
         row["個別URL"] = BASE_URL + cid
         row["初回参加月"] = first_m
         row["最終参加月"] = last_m
