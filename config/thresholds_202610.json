@@ -29,6 +29,7 @@
       {"key": "dia50k",  "label": "月間 50,000ダイヤ",  "icon": "💎", "metric": "diamond",      "target": 50000,  "unit": "",  "pt": 5000},
       {"key": "dia100k", "label": "月間 100,000ダイヤ", "icon": "💎", "metric": "diamond",      "target": 100000, "unit": "",  "pt": 5000},
       {"key": "dia200k", "label": "月間 200,000ダイヤ", "icon": "💎", "metric": "diamond",      "target": 200000, "unit": "",  "pt": 5000},
+      {"key": "dia300k", "label": "月間 300,000ダイヤ", "icon": "💎", "metric": "diamond",      "target": 300000, "unit": "",  "pt": 5000},
       {"key": "follow50", "label": "LIVE経由 新規フォロワー 50人", "icon": "🚀", "metric": "new_followers", "target": 50, "unit": "人", "pt": 10000}
     ],
     "tasks": {
