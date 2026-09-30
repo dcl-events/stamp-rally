@@ -4,3 +4,6 @@ __pycache__/
 service_account.json
 .DS_Store
 tools/state/
+
+# ローカルプレビュー用サンプルJSON（公開しない）
+docs/data/_preview_*.json

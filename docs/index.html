@@ -333,8 +333,12 @@ function panel(tier, b, status, period){
   const locked = !!b.locked;
   const rEarn = b.results.filter(r=>r.done).reduce((s,r)=>s+r.pt,0);
   const rMax  = b.results.reduce((s,r)=>s+r.pt,0);
-  const off = Math.round(289*(1 - b.pct/100));
   const t = b.tasks;
+  // ヒーローの「獲得 / 合計」は 成果満点＋課題バンドル で表示し、対象/非対象に関わらずセクション合計と一致させる
+  const heroMax = rMax + t.bundle_pt;
+  const heroEarned = rEarn + (t.all_done ? t.bundle_pt : 0);
+  const heroPct = heroMax ? Math.round(heroEarned / heroMax * 100) : 0;
+  const off = Math.round(289*(1 - heroPct/100));
   const bundle = t.all_done
     ? `<div class="bundle done"><span class="ic">🎉</span><div class="body">
          <div class="top"><b>課題オールクリア <em>+${fmt(t.bundle_pt)}pt 獲得！</em></b><span>${t.done_count} / ${t.total} 達成</span></div>
@@ -363,14 +367,14 @@ function panel(tier, b, status, period){
       <div class="hero-txt">
         <span class="eyebrow">${m.en}${period ? " · " + esc(period) : ""}</span>
         <h1>${m.title}</h1>
-        <div class="pts"><b>${fmt(b.earned_pt)}</b><span>/ ${fmt(b.max_pt)} pt 獲得</span></div>
+        <div class="pts"><b>${fmt(heroEarned)}</b><span>/ ${fmt(heroMax)} pt 獲得</span></div>
       </div>
-      <div class="ring" aria-label="達成率 ${b.pct}%">
+      <div class="ring" aria-label="達成率 ${heroPct}%">
         <svg width="110" height="110" viewBox="0 0 104 104">
           <circle cx="52" cy="52" r="46" fill="none" stroke="var(--ring-track)" stroke-width="9"/>
           <circle cx="52" cy="52" r="46" fill="none" stroke="var(--accent)" stroke-width="9" stroke-linecap="round" stroke-dasharray="289" stroke-dashoffset="${off}"/>
         </svg>
-        <span class="lbl"><b>${b.pct}<i>%</i></b><span>Clear</span></span>
+        <span class="lbl"><b>${heroPct}<i>%</i></b><span>Clear</span></span>
       </div>
     </div>
     ${statusbar}
