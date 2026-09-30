@@ -18,8 +18,8 @@
       "items": [
         {"key": "gift",        "label": "ギフトギャラリー全部埋める", "icon": "🎁"},
         {"key": "heartme",     "label": "ハートミー企画",           "icon": "💗"},
-        {"key": "battle_7d10", "label": "バトル 7日間で10回",       "icon": "⚔️"},
-        {"key": "battle_14d20","label": "バトル 14日間で20回",      "icon": "⚔️"}
+        {"key": "battle_d7_5",  "label": "初配信日から7日目までにバトルを5回",   "icon": "⚔️"},
+        {"key": "battle_d14_20","label": "初配信日から14日目までにバトルを20回", "icon": "⚔️"}
       ]
     }
   },
