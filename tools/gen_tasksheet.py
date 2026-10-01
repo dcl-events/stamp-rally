@@ -50,9 +50,10 @@ cfg = json.load(open(os.path.join(ROOT, "config", "thresholds.json"), encoding="
 BEG_TASKS = [f"【ビギナー】{t['label']}" for t in cfg["beginner"]["tasks"]["items"]]
 RISE_TASKS = [f"【RISE】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]
 IDENT = ["ライバー名", "クリエイターID", "クリエイターのユーザー名", "クリエイターマネージャー", "バックステージ"]
-HEAD_A = IDENT + ["ラリー", "参加状況", "Liny URL", "個別URL"]      # A〜I（このスクリプトが持つ。Liny URLは参加状況と個別URLの間）
-TASK_COLS = BEG_TASKS + RISE_TASKS                                  # J〜Q（人が入力する。触らない）
-HEAD_B = ["初配信日", "初回参加月", "最終参加月", "配信状況", "URL送付"]   # R〜V（このスクリプトが持つ。初配信日はマスターU列）
+# 初配信日(マスターU列)は クリエイターのユーザー名(C) と クリエイターマネージャー の間に入れる＝D列
+HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ラリー", "参加状況", "Liny URL", "個別URL"]  # A〜J
+TASK_COLS = BEG_TASKS + RISE_TASKS                                  # K〜R（人が入力する。触らない）
+HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # S〜V（このスクリプトが持つ）
 HEADER = HEAD_A + TASK_COLS + HEAD_B
 
 
