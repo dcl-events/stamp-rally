@@ -34,9 +34,6 @@ from datetime import datetime, timezone, timedelta
 import gspread
 from google.oauth2.service_account import Credentials
 
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-import firstbcast   # 初配信日を日次TSVから再構成（凍結キャッシュ）
-
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CREDS = os.environ.get("SERVICE_ACCOUNT_FILE", "/Users/sukeaki.ito/Claude/pococha/service_account.json")
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -199,10 +196,10 @@ def base_of(status):
 
 
 def load_master_map(sh):
-    """【管理】ライバー一覧マスターから {配信アプリID(=TikTokクリエイターID) → {liny}} を作る（Liny URL用）。
+    """【管理】ライバー一覧マスターから {配信アプリID(=TikTokクリエイターID) → {liny, first}} を作る。
     マスターは3行ヘッダ（1行目=空/結合、2行目=大分類、3行目=実見出し、4行目〜データ）。
-      ・liny = D列「Liny個別トークページ」（空ならE列「Liny友達ID」からテンプレ生成）
-    ※初配信日はマスターU列が実は「登録日」なので使わない。初配信日は firstbcast.py で日次TSVから再構成する。"""
+      ・liny  = D列「Liny個別トークページ」（空ならE列「Liny友達ID」からテンプレ生成）
+      ・first = U列「初配信日 *自動反映」をそのまま採用"""
     try:
         mw = next(w for w in sh.worksheets() if w.id == MASTER_GID)
         mv = mw.get_all_values()
@@ -220,8 +217,9 @@ def load_master_map(sh):
     i_sid = find("配信アプリID")
     i_url = find("Liny個別トーク")
     i_fid = find("友達ID")
+    i_first = find("初配信日")
     if i_sid < 0:
-        print("! マスターに『配信アプリID』列が見つからない → Liny URLは空で継続")
+        print("! マスターに『配信アプリID』列が見つからない → Liny URL/初配信日は空で継続")
         return {}
     m = {}
     for r in mv[3:]:
@@ -231,9 +229,11 @@ def load_master_map(sh):
         url = r[i_url].strip() if (i_url >= 0 and len(r) > i_url) else ""
         if not url and i_fid >= 0 and len(r) > i_fid and r[i_fid].strip():
             url = f"https://manager.liny.jp/line/visual?show=detail&member={r[i_fid].strip()}"
-        if url:
-            m[sid] = {"liny": url}
-    print(f"マスター突合: Liny URL {sum(1 for v in m.values() if v['liny'])}件（S列キー）")
+        first = r[i_first].strip() if (i_first >= 0 and len(r) > i_first) else ""
+        if url or first:
+            m[sid] = {"liny": url, "first": first}
+    nl = sum(1 for v in m.values() if v.get("liny")); nf = sum(1 for v in m.values() if v.get("first"))
+    print(f"マスター突合: Liny URL {nl}件 / 初配信日(U列) {nf}件（S列キー）")
     return m
 
 
@@ -248,9 +248,7 @@ def main():
     cd = {r["クリエイターID"]: r for r in cd_rows if r.get("クリエイターID")}
     ws, cur_header, existing_rows = read_tab(sh, TASK_GID)
     existing = {r.get("クリエイターID"): r for r in existing_rows if r.get("クリエイターID")}
-    master_map = load_master_map(sh)   # {配信アプリID(=クリエイターID) → {liny}}（Liny URL用）
-    firstbc, fb_new = firstbcast.update()   # 初配信日 {cid: "YYYY/MM/DD"}（日次TSVから再構成・凍結）
-    print(f"初配信日: {len(firstbc)}名確定（今回新規 {fb_new}名／9/03以前デビューは未確定=空欄）")
+    master_map = load_master_map(sh)   # {配信アプリID(=クリエイターID) → {liny, first}}
 
     ym = target_month(cd_rows)
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
@@ -327,7 +325,7 @@ def main():
         row["参加状況"] = status
         row["Liny URL"] = master_map.get(cid, {}).get("liny", "")   # マスターS列(配信アプリID=クリエイターID)で突合
         row["個別URL"] = BASE_URL + cid
-        row["初配信日"] = firstbc.get(cid, "")   # 日次TSVから再構成した真の初配信日（未確定は空欄→Backstage目視）
+        row["初配信日"] = master_map.get(cid, {}).get("first", "")   # マスターU列「初配信日 *自動反映」
         row["初回参加月"] = first_m
         row["最終参加月"] = last_m
         row["配信状況"] = lstate
