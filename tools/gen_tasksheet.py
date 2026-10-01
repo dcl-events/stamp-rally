@@ -52,7 +52,7 @@ RISE_TASKS = [f"【RISE】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]
 IDENT = ["ライバー名", "クリエイターID", "クリエイターのユーザー名", "クリエイターマネージャー", "バックステージ"]
 HEAD_A = IDENT + ["ラリー", "参加状況", "Liny URL", "個別URL"]      # A〜I（このスクリプトが持つ。Liny URLは参加状況と個別URLの間）
 TASK_COLS = BEG_TASKS + RISE_TASKS                                  # J〜Q（人が入力する。触らない）
-HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # R〜U（このスクリプトが持つ）
+HEAD_B = ["初配信日", "初回参加月", "最終参加月", "配信状況", "URL送付"]   # R〜V（このスクリプトが持つ。初配信日はマスターU列）
 HEADER = HEAD_A + TASK_COLS + HEAD_B
 
 
@@ -194,15 +194,16 @@ def base_of(status):
     return "対象外"
 
 
-def load_liny_map(sh):
-    """【管理】ライバー一覧マスターから {配信アプリID(=TikTokクリエイターID) → Liny URL} を作る。
+def load_master_map(sh):
+    """【管理】ライバー一覧マスターから {配信アプリID(=TikTokクリエイターID) → {liny, first}} を作る。
     マスターは3行ヘッダ（1行目=空/結合、2行目=大分類、3行目=実見出し、4行目〜データ）。
-    URLはD列「Liny個別トークページ」をそのまま採用。空ならE列「Liny友達ID」からテンプレで生成。"""
+      ・liny  = D列「Liny個別トークページ」（空ならE列「Liny友達ID」からテンプレ生成）
+      ・first = U列「初配信日 *自動反映」（バトル課題『初配信から◯日目』の判定用）"""
     try:
         mw = next(w for w in sh.worksheets() if w.id == MASTER_GID)
         mv = mw.get_all_values()
     except Exception as e:
-        print(f"! マスター読込に失敗: {e} → Liny URLは空で継続")
+        print(f"! マスター読込に失敗: {e} → Liny URL/初配信日は空で継続")
         return {}
     if len(mv) < 4:
         return {}
@@ -215,8 +216,9 @@ def load_liny_map(sh):
     i_sid = find("配信アプリID")
     i_url = find("Liny個別トーク")
     i_fid = find("友達ID")
+    i_first = find("初配信日")
     if i_sid < 0:
-        print("! マスターに『配信アプリID』列が見つからない → Liny URLは空で継続")
+        print("! マスターに『配信アプリID』列が見つからない → Liny URL/初配信日は空で継続")
         return {}
     m = {}
     for r in mv[3:]:
@@ -226,9 +228,11 @@ def load_liny_map(sh):
         url = r[i_url].strip() if (i_url >= 0 and len(r) > i_url) else ""
         if not url and i_fid >= 0 and len(r) > i_fid and r[i_fid].strip():
             url = f"https://manager.liny.jp/line/visual?show=detail&member={r[i_fid].strip()}"
-        if url:
-            m[sid] = url
-    print(f"Liny URLマップ: {len(m)}件（マスターS列→Liny個別トーク）")
+        first = r[i_first].strip() if (i_first >= 0 and len(r) > i_first) else ""
+        if url or first:
+            m[sid] = {"liny": url, "first": first}
+    nl = sum(1 for v in m.values() if v["liny"]); nf = sum(1 for v in m.values() if v["first"])
+    print(f"マスター突合: Liny URL {nl}件 / 初配信日 {nf}件（S列キー）")
     return m
 
 
@@ -243,7 +247,7 @@ def main():
     cd = {r["クリエイターID"]: r for r in cd_rows if r.get("クリエイターID")}
     ws, cur_header, existing_rows = read_tab(sh, TASK_GID)
     existing = {r.get("クリエイターID"): r for r in existing_rows if r.get("クリエイターID")}
-    liny_map = load_liny_map(sh)   # {配信アプリID(=クリエイターID) → Liny URL}
+    master_map = load_master_map(sh)   # {配信アプリID(=クリエイターID) → {liny, first}}
 
     ym = target_month(cd_rows)
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
@@ -318,8 +322,9 @@ def main():
         row = {k: v for k, v in zip(IDENT, [name, cid, uname, mgr, bs])}
         row["ラリー"] = rally
         row["参加状況"] = status
-        row["Liny URL"] = liny_map.get(cid, "")   # マスターS列(配信アプリID=クリエイターID)で突合
+        row["Liny URL"] = master_map.get(cid, {}).get("liny", "")   # マスターS列(配信アプリID=クリエイターID)で突合
         row["個別URL"] = BASE_URL + cid
+        row["初配信日"] = master_map.get(cid, {}).get("first", "")   # マスターU列（バトル課題の起点）
         row["初回参加月"] = first_m
         row["最終参加月"] = last_m
         row["配信状況"] = lstate
