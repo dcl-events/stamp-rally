@@ -327,7 +327,7 @@ def main():
         # バトル回数＝creator_dataのLIVE Match数／ダイヤ獲得割合＝Matchダイヤ÷総ダイヤ(%)
         row["バトル回数"] = c.get("LIVE Match数", "")
         _dia = num(c.get("ダイヤモンド", "")); _mdia = num(c.get("LIVE Matchで獲得したダイヤモンド数", ""))
-        row["ダイヤ獲得割合"] = f"{round(_mdia / _dia * 100)}%" if _dia > 0 else ""
+        row["ダイヤ獲得割合"] = f"{_mdia / _dia * 100:.2f}%" if _dia > 0 else ""
         row["Liny URL"] = master_map.get(cid, {}).get("liny", "")   # マスターS列(配信アプリID=クリエイターID)で突合
         row["個別URL"] = BASE_URL + cid
         row["初配信日"] = master_map.get(cid, {}).get("first", "")   # マスターU列「初配信日 *自動反映」
