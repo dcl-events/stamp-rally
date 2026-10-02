@@ -51,7 +51,8 @@ BEG_TASKS = [f"【ビギナー】{t['label']}" for t in cfg["beginner"]["tasks"]
 RISE_TASKS = [f"【RISE】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]
 IDENT = ["ライバー名", "クリエイターID", "クリエイターのユーザー名", "クリエイターマネージャー", "バックステージ"]
 # 初配信日(マスターU列)は クリエイターのユーザー名(C) と クリエイターマネージャー の間に入れる＝D列
-HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ラリー", "参加状況", "Liny URL", "個別URL"]  # A〜J
+# バトル回数(LIVE Match数)・ダイヤ獲得割合(Matchダイヤ÷総ダイヤ%)は参加状況の右＝I,J列
+HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ラリー", "参加状況", "バトル回数", "ダイヤ獲得割合", "Liny URL", "個別URL"]  # A〜L
 TASK_COLS = BEG_TASKS + RISE_TASKS                                  # K〜R（人が入力する。触らない）
 HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # S〜V（このスクリプトが持つ）
 HEADER = HEAD_A + TASK_COLS + HEAD_B
@@ -323,6 +324,10 @@ def main():
         row = {k: v for k, v in zip(IDENT, [name, cid, uname, mgr, bs])}
         row["ラリー"] = rally
         row["参加状況"] = status
+        # バトル回数＝creator_dataのLIVE Match数／ダイヤ獲得割合＝Matchダイヤ÷総ダイヤ(%)
+        row["バトル回数"] = c.get("LIVE Match数", "")
+        _dia = num(c.get("ダイヤモンド", "")); _mdia = num(c.get("LIVE Matchで獲得したダイヤモンド数", ""))
+        row["ダイヤ獲得割合"] = f"{round(_mdia / _dia * 100)}%" if _dia > 0 else ""
         row["Liny URL"] = master_map.get(cid, {}).get("liny", "")   # マスターS列(配信アプリID=クリエイターID)で突合
         row["個別URL"] = BASE_URL + cid
         row["初配信日"] = master_map.get(cid, {}).get("first", "")   # マスターU列「初配信日 *自動反映」
