@@ -71,7 +71,7 @@ def col_a1(n):
 
 def sort_participation(ws, ndata):
     """参加中を上・対象外/卒業を下へ並べ替える（行ごとサーバ側ソート＝課題も一緒に安全に移動）。
-    参加状況G降順(🟢参加中→🟡反映待ち→🔴対象外)→配信状況S降順→マネージャー→名前。"""
+    参加状況降順(🟢参加中→🟡反映待ち→🔵スタンプのみ→🔴対象外)→配信状況降順→マネージャー→名前。"""
     if ndata <= 1:
         return
     ws.spreadsheet.batch_update({"requests": [{"sortRange": {
@@ -190,7 +190,7 @@ def load_snapshot(path, ym):
 def base_of(status):
     """既存行の「参加状況」から 在籍/RISE卒業/ビギナー対象外 を読み戻す。"""
     s = (status or "").strip()
-    if not s or "参加中" in s or s == "在籍":
+    if not s or "参加中" in s or "スタンプ" in s or s == "在籍":
         return "在籍"
     if "RISE卒業" in s:
         return "RISE卒業"
@@ -318,7 +318,8 @@ def main():
             rally = "RISE1（RISE2卒業）" if (in_b and in_r) else ("RISE2" if in_b else "RISE1")
             base = "在籍"
             last_m = ym                                            # 在籍中は対象月に追従
-            status = f"🟢 {mlabel(ym)} 参加中"
+            # ランキング未掲載の新人(nc=1000pt未満でスタンプラリーのみ取り込み)は区別して表示
+            status = f"🔵 {mlabel(ym)} スタンプラリーのみ" if cid in nc else f"🟢 {mlabel(ym)} 参加中"
             if cid not in existing:
                 added += 1
             else:

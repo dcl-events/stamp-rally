@@ -111,7 +111,7 @@ def norm_status(v):
     機械用ステータス(在籍 / RISE卒業 / ビギナー対象外)へ正規化する。
     旧表記(在籍 等)もそのまま通す＝どちらの世代のシートでも動く。"""
     v = (v or "").strip()
-    if not v or "参加中" in v or v == "在籍":
+    if not v or "参加中" in v or "スタンプ" in v or v == "在籍":   # 🔵スタンプラリーのみ(未掲載新人)も在籍=締めない
         return "在籍"
     if "RISE卒業" in v:
         return "RISE卒業"

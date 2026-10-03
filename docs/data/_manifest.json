@@ -101,18 +101,6 @@
       }
     },
     {
-      "id": "7686509748698562568",
-      "name": "流星",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
       "id": "7676477840698851336",
       "name": "lala🌴",
       "tiers": [
@@ -377,44 +365,8 @@
       }
     },
     {
-      "id": "7691502573794099207",
-      "name": "かりん",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
       "id": "7689100159535464468",
       "name": "yuka",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7678158941712367623",
-      "name": "クレナ",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7691523607008411655",
-      "name": "リンス",
       "tiers": [
         "beginner"
       ],
@@ -1111,6 +1063,54 @@
     {
       "id": "7521757470067507216",
       "name": "やんむい🥣🌷",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7686509748698562568",
+      "name": "流星",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7691502573794099207",
+      "name": "かりん",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7678158941712367623",
+      "name": "クレナ",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7691523607008411655",
+      "name": "リンス",
       "tiers": [
         "beginner"
       ],
