@@ -8,29 +8,31 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&family=DM+Mono:wght@400;500&family=Jost:wght@500;600;700;800&family=Noto+Sans+JP:wght@400;500;700;800&display=swap">
 <style>
-  /* ===== BEGINNER theme (default / purple・light) ===== */
+  /* ===== RISE2 theme (dark / ranking) ===== 旧ビギナー。10月ランキングRISE2に合わせた暖色ダーク */
   :root{
-    --font-body:"Zen Kaku Gothic New", ui-sans-serif, system-ui, "Hiragino Kaku Gothic ProN", sans-serif;
-    --font-disp:"Bricolage Grotesque","Zen Kaku Gothic New",sans-serif;
-    --font-num:"DM Mono",monospace;
+    --font-body:'Noto Sans JP','Hiragino Kaku Gothic ProN',sans-serif;
+    --font-disp:'Jost',sans-serif;
+    --font-num:'Jost',sans-serif;
     --wrap:680px;
 
-    --surface:#FFFFFF; --surface-2:#F5F6FC;
-    --ink:#15172B; --ink-soft:#5B6084; --ink-faint:#9498B8;
-    --line:#E2E5F1; --line-strong:#CBD0E4;
+    --surface:#1d1216; --surface-2:#1d1216;
+    --ink:#f4f0f1; --ink-soft:#b09a9e; --ink-faint:#b09a9e;
+    --line:#3a2329; --line-strong:#4d2f37;
 
-    --accent:#7C4DFF; --accent2:#FF3D77;
-    --result:#C67A00; --task:#6A3FE0;
-    --pts-grad:linear-gradient(100deg,#1FC7B6,#7C4DFF 55%,#FF3D77);
-    --medal-glow2:#FF3D77;
+    --accent:#ff7a3c; --accent2:#facd00;
+    --brand-orange:#eb5000; --brand-yellow:#facd00; --brand-pink:#f177c4;
+    --result:#ff7a3c; --task:#facd00;
+    --pts-grad:linear-gradient(100deg,#facd00,#ff7a3c 60%,#ff5a2c);
+    --medal-glow2:#facd00;
 
-    --hero-bg:var(--surface); --hero-ink:var(--ink); --hero-sub:var(--ink-soft); --hero-line:var(--line);
-    --ring-track:#E4E7F3; --ring-ink:var(--ink); --ring-sub:var(--ink-faint);
-    --stamp-face:#FFFFFF; --medal-face:#FFFFFF; --medal-dash:var(--line-strong); --check-ink:#0a0d1c;
-    --note-ink:#5B6084; --note-b:#15172B;
-    --shadow:0 1px 2px rgba(20,22,43,.05), 0 12px 32px -12px rgba(20,22,43,.18);
-    --shadow-lift:0 2px 4px rgba(20,22,43,.06), 0 22px 48px -16px rgba(20,22,43,.28);
-    --logo-light:block; --logo-dark:none;
+    --hero-bg:linear-gradient(135deg,#1a1013 0%,#3a1f24 42%,#5e2a2f 74%,#26161a 100%);
+    --hero-ink:#fff; --hero-sub:rgba(255,255,255,.82); --hero-line:rgba(255,255,255,.14);
+    --ring-track:#3a2329; --ring-ink:#fff; --ring-sub:rgba(255,255,255,.65);
+    --stamp-face:#160d10; --medal-face:#160d10; --medal-dash:#4d2f37; --check-ink:#1d1216;
+    --note-ink:#e0cdd1; --note-b:#fff;
+    --shadow:0 6px 18px rgba(0,0,0,.45);
+    --shadow-lift:0 12px 26px rgba(0,0,0,.55);
+    --logo-light:none; --logo-dark:block;
   }
 
   /* ===== RISE theme (dark / ranking) ===== */
@@ -65,9 +67,9 @@
   body{margin:0;color:var(--ink);line-height:1.5;-webkit-font-smoothing:antialiased;
     font-family:var(--font-body);
     background:
-      radial-gradient(120% 60% at 85% -10%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
-      radial-gradient(120% 55% at 0% 0%, color-mix(in srgb, var(--accent2) 12%, transparent), transparent 55%),
-      #EFF1FA;}
+      radial-gradient(1100px 420px at 10% -10%, #3a2026 0%, rgba(58,32,38,0) 62%),
+      radial-gradient(900px 380px at 100% 2%, #5e2a2f 0%, rgba(94,42,47,0) 58%),
+      #120a0d;}
   body.mode-rise{
     background:
       radial-gradient(1100px 420px at 10% -10%, #24242a 0%, rgba(36,36,42,0) 62%),
@@ -119,6 +121,8 @@
     letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:9px}
   .eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
   .hero h1{margin:0;font-family:var(--font-disp);font-weight:800;font-size:clamp(24px,6vw,34px);line-height:1.06;letter-spacing:.01em;text-wrap:balance}
+  .hero h1 .hero-logo{height:clamp(26px,6.6vw,36px);width:auto;max-width:82%;display:block;margin-bottom:6px}
+  .hero h1 .st{display:block;font-size:clamp(17px,4.2vw,22px);font-weight:800}
   .pts{margin-top:14px;display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
   .pts b{font-family:var(--font-disp);font-weight:800;font-size:clamp(30px,8vw,42px);line-height:1;font-variant-numeric:tabular-nums;
     background:var(--pts-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
@@ -253,10 +257,10 @@
 
   /* ===== 達成スタンプの強調＋モーション ===== */
   .stamp.done{border-color:color-mix(in srgb,var(--accent) 34%,var(--line));background:color-mix(in srgb,var(--accent) 6%,var(--surface))}
-  /* ビギナー限定：円リングをページのブランドグラデ(teal→purple→pink)に */
+  /* RISE2限定：円リングをRISE2の暖色グラデ(gold→orange→pink)に */
   body:not(.mode-rise) .stamp.done .medal{
     background:linear-gradient(var(--medal-face),var(--medal-face)) padding-box,
-      conic-gradient(from 140deg, #1FC7B6, #7C4DFF, #FF3D77, #1FC7B6) border-box;
+      conic-gradient(from 140deg, #facd00, #ff7a3c, #ff3d77, #facd00) border-box;
   }
   @media (prefers-reduced-motion:no-preference){
     .rally.on .stamp.done{animation:stampIn .55s cubic-bezier(.2,1.25,.4,1) backwards;animation-delay:calc(var(--i,0)*75ms + .06s)}
@@ -266,10 +270,10 @@
   }
   @keyframes stampIn{0%{opacity:0;transform:scale(.55) rotate(-7deg)}55%{opacity:1;transform:scale(1.06) rotate(1.5deg)}100%{opacity:1;transform:none}}
   @keyframes checkPop{0%{transform:scale(0)}65%{transform:scale(1.35)}100%{transform:scale(1)}}
-  /* ビギナー：円リングのグローをブランド色(purple↔pink)で呼吸（RISEと同じ動き） */
+  /* RISE2：円リングのグローをRISE2暖色(gold↔orange)で呼吸（RISE1と同じ動き） */
   @keyframes glowPulseBrand{
-    0%,100%{box-shadow:0 0 0 4px rgba(124,77,255,.14), 0 8px 22px -8px rgba(124,77,255,.42)}
-    50%{box-shadow:0 0 0 6px rgba(255,61,119,.32), 0 0 18px -3px rgba(124,77,255,.42), 0 12px 28px -6px rgba(255,61,119,.5)}
+    0%,100%{box-shadow:0 0 0 4px rgba(250,205,0,.16), 0 8px 22px -8px rgba(255,122,60,.42)}
+    50%{box-shadow:0 0 0 6px rgba(255,122,60,.34), 0 0 18px -3px rgba(250,205,0,.42), 0 12px 28px -6px rgba(255,122,60,.5)}
   }
   /* RISE：元のアクセント(オレンジ)グロー（弱め） */
   @keyframes glowPulse{
@@ -295,8 +299,8 @@
 let RANK_MONTH = "202609";
 const rankUrl = tier => `https://dcl-events.github.io/rankings/tiktok-${RANK_MONTH}-${tier==="beginner"?"newcomer":"rise"}.html`;
 const META = {
-  beginner: {en:"Beginner", jp:"ビギナー", title:"ビギナースタンプラリー", badge:"🚀 ビギナー", rankEm:"🌱", rankName:"ビギナーランキング"},
-  rise:     {en:"Rise",     jp:"RISE",     title:"RISEスタンプラリー",   badge:"⚡ RISE",   rankEm:"⚡", rankName:"RISEランキング"},
+  beginner: {en:"Rise 2", jp:"RISE2", title:"RISE2 スタンプラリー", badge:"⚡ RISE2", rankEm:"⚡", rankName:"RISE2ランキング"},
+  rise:     {en:"Rise 1", jp:"RISE1", title:"RISE1 スタンプラリー", badge:"⚡ RISE1", rankEm:"⚡", rankName:"RISE1ランキング"},
 };
 const fmt = n => Number(n).toLocaleString("ja-JP");
 const esc = s => (s==null?"":String(s)).replace(/[&<>"]/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -366,7 +370,7 @@ function panel(tier, b, status, period){
     <div class="hero">
       <div class="hero-txt">
         <span class="eyebrow">${m.en}${period ? " · " + esc(period) : ""}</span>
-        <h1>${m.title}</h1>
+        <h1><img class="hero-logo" src="assets/${tier==='rise'?'rise1':'rise2'}_logo.png" alt="${esc(m.jp)}"><span class="st">スタンプラリー</span></h1>
         <div class="pts"><b>${fmt(heroEarned)}</b><span>/ ${fmt(heroMax)} pt 獲得</span></div>
       </div>
       <div class="ring" aria-label="達成率 ${heroPct}%">
@@ -399,7 +403,7 @@ function render(d){
   const mem_b = tiers.includes("beginner");
   const primary = mem_r ? "rise" : "beginner";   // ビギナーをクリア→RISEへ。現在の対象はRISE優先
   const badgeTxt = (d.status && d.status!=="在籍") ? ("🎓 " + d.status)
-    : mem_r ? "⚡ RISE対象" : "🚀 ビギナー対象";
+    : mem_r ? "⚡ RISE1対象" : "⚡ RISE2対象";
   const chip = `<div class="liver">
       <div class="avatar">${esc(initial)}</div>
       <div class="liver-meta"><span class="nm">${esc(d.name)}</span><span class="sub">@${esc(d.username)}</span></div>
@@ -411,7 +415,7 @@ function render(d){
     : (mem_r ? ["クリア","is-cleared"] : (mem_b ? ["対象","is-target"] : ["参考","is-ref"]));
   const tabs = `<div class="tabs" role="tablist">` + ALL.map(t=>{
       const [mk,cls]=markOf(t);
-      return `<button class="tab ${cls}" id="tab-${t}" role="tab" aria-selected="${t===primary}" onclick="selectTier('${t}')"><span class="en">${META[t].en}</span> ${META[t].jp} <span class="tab-mark">${mk}</span></button>`;
+      return `<button class="tab ${cls}" id="tab-${t}" role="tab" aria-selected="${t===primary}" onclick="selectTier('${t}')">${META[t].jp} <span class="tab-mark">${mk}</span></button>`;
     }).join("") + `</div>`;
   if (d.rank_month) RANK_MONTH = d.rank_month;
   const panels = ALL.map(t => d[t] ? panel(t, d[t], d.status, d.period || "") : emptyPanel(t)).join("");

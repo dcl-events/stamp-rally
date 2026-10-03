@@ -44,6 +44,9 @@ MASTER_GID = 1135233534   # 【管理】ライバー一覧マスター（Liny UR
 RANK_DATA = "/Users/sukeaki.ito/Claude/event-rankings/data"
 BASE_URL = "https://dcl-events.github.io/stamp-rally/?id="
 GRACE_DAYS = 7   # 対象月の経過がこの日数以内なら「配信ゼロ」は判定待ち扱い（月初の誤検知防止）
+# ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む設定（2026-10開始）
+NEWCOMER_FROM_MONTH = "2026-10"   # この対象月以降だけ取り込む
+NEWCOMER_SINCE = "2026-08"        # 入会日の下限（8月登録者ぐらいから）
 DRY = "--dry" in sys.argv
 
 cfg = json.load(open(os.path.join(ROOT, "config", "thresholds.json"), encoding="utf-8"))
@@ -196,6 +199,28 @@ def base_of(status):
     return "対象外"
 
 
+def newcomer_ids(cd, ranked, ym):
+    """ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む cid 集合を返す。
+    対象月が NEWCOMER_FROM_MONTH 以降のときだけ有効（それ以前は空＝従来どおり snapshot のみ）。
+    条件: ①未掲載(snapshotに居ない) ②先月ダイヤ<1万(既存上位でない) ③当月に配信実績あり(有効LIVE日数>0)
+          ④入会が NEWCOMER_SINCE 以降。※ランキングには載せず、課題シート＋RISE2スタンプラリーにだけ出す。"""
+    if ym < NEWCOMER_FROM_MONTH:
+        return set()
+    out = set()
+    for cid, r in cd.items():
+        if cid in ranked:
+            continue
+        if num(r.get("先月のダイヤモンド数", "")) >= 10000:
+            continue
+        if num(r.get("有効LIVE日数", "")) <= 0:
+            continue
+        m = re.match(r"(\d{4})[/-](\d{2})", (r.get("入会日", "") or "").strip())
+        if not (m and f"{m.group(1)}-{m.group(2)}" >= NEWCOMER_SINCE):
+            continue
+        out.add(cid)
+    return out
+
+
 def load_master_map(sh):
     """【管理】ライバー一覧マスターから {配信アプリID(=TikTokクリエイターID) → {liny, first}} を作る。
     マスターは3行ヘッダ（1行目=空/結合、2行目=大分類、3行目=実見出し、4行目〜データ）。
@@ -263,6 +288,13 @@ def main():
     #   ・対象月の経過が GRACE_DAYS 以内 → 降格判定に使わない（据え置き）
     stale = (bmonth != ym) or (rmonth != ym)
     roster_grace = stale or (elapsed <= GRACE_DAYS)
+
+    # ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む（対象月10月以降）。
+    nc = newcomer_ids(cd, set(beg) | set(rise), ym)
+    for cid in nc:
+        beg.setdefault(cid, {"name": cd.get(cid, {}).get("ライバー名", ""), "newcomer": True})
+    if nc:
+        print(f"初心者(未掲載<1000pt)をRISE2枠へ取り込み: {len(nc)}名")
 
     all_ids = set(existing) | set(beg) | set(rise)
     added = graduated = dropped = kept = waiting = 0
