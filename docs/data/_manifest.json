@@ -1193,6 +1193,19 @@
       }
     },
     {
+      "id": "クリエイターがエージェンシーを退会しました",
+      "name": "",
+      "tiers": [
+        "beginner",
+        "rise"
+      ],
+      "status": "対象外",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
       "id": "7668644241911906322",
       "name": "ゆめゆめ💚✨️",
       "tiers": [
@@ -1330,16 +1343,6 @@
       "tiers": [
         "beginner"
       ],
-      "status": "対象外",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "クリエイターがエージェンシーを退会しました",
-      "name": "",
-      "tiers": [],
       "status": "対象外",
       "pts": {
         "beginner": 0,
