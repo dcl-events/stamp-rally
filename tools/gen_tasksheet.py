@@ -324,8 +324,12 @@ def main():
                 added += 1
             else:
                 kept += 1
-        elif roster_grace and base_of(prev.get("参加状況")) == "在籍" and cid in existing:
+        elif (roster_grace and base_of(prev.get("参加状況")) == "在籍" and cid in existing
+              and (stale or "RISE1" not in prev_rally)):
             # 月替わり直後 or snapshot が当月未反映。まだランキングに載っていないだけ＝在籍据え置き。
+            # ★RISE1は前月ポイントで参加が確定する（当月の積み上げ不要）＝snapshotが当月で確定(not stale)なら
+            #   そこに居ない旧RISE1は卒業(前月400万超)or降格(前月200万未満)で確定＝graceを当てず下の対象外へ。
+            #   RISE2(旧ビギナー)は当月1000ptの積み上げで載るのでgrace対象。
             # 最終参加月は当月の名簿に載るまで進めない（離脱が確定したとき最終参加月を正しく凍結するため）
             rally = prev_rally
             base = "在籍"
