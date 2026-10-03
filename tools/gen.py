@@ -213,13 +213,13 @@ def main():
             "rank_month": rank_month,
             "tiers": [],
         }
-        mem_b = "ビギナー" in rally
-        mem_r = "RISE" in rally
-        # ビギナーはクリアしてRISEへ上がる関係。RISEにいる時点でビギナーはクリア済み＝現在の対象はRISE。
-        # ビギナー成果はRISE対象者にも反映(mem_b or mem_r)、ビギナー課題はビギナー"のみ"対象＝RISEに上がったら非対象(mem_b and not mem_r)。
-        # RISE成果・課題はRISE対象者のみ(mem_r)。
-        data["beginner"] = build_tier(cfg["beginner"], "ビギナー", row_cd, r, idx, locked, mem_b or mem_r, mem_b and not mem_r)
-        data["rise"] = build_tier(cfg["rise"], "RISE", row_cd, r, idx, locked, mem_r, mem_r)
+        mem_b = "RISE2" in rally   # 旧ビギナー
+        mem_r = "RISE1" in rally   # 旧RISE（"RISE1（RISE2卒業）"は両方Trueになる）
+        # RISE2(旧ビギナー)はクリアしてRISE1(旧RISE)へ上がる関係。RISE1にいる時点でRISE2はクリア済み＝現在の対象はRISE1。
+        # RISE2成果はRISE1対象者にも反映(mem_b or mem_r)、RISE2課題はRISE2"のみ"対象＝RISE1に上がったら非対象(mem_b and not mem_r)。
+        # RISE1成果・課題はRISE1対象者のみ(mem_r)。課題列プレフィックスは【RISE2】【RISE1】。
+        data["beginner"] = build_tier(cfg["beginner"], "RISE2", row_cd, r, idx, locked, mem_b or mem_r, mem_b and not mem_r)
+        data["rise"] = build_tier(cfg["rise"], "RISE1", row_cd, r, idx, locked, mem_r, mem_r)
         data["tiers"] = [t for t, m in (("beginner", mem_b), ("rise", mem_r)) if m]
 
         json.dump(data, open(os.path.join(out_dir, f"{cid}.json"), "w", encoding="utf-8"),

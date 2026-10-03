@@ -50,8 +50,8 @@ NEWCOMER_SINCE = "2026-08"        # 入会日の下限（8月登録者ぐらい�
 DRY = "--dry" in sys.argv
 
 cfg = json.load(open(os.path.join(ROOT, "config", "thresholds.json"), encoding="utf-8"))
-BEG_TASKS = [f"【ビギナー】{t['label']}" for t in cfg["beginner"]["tasks"]["items"]]
-RISE_TASKS = [f"【RISE】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]
+BEG_TASKS = [f"【RISE2】{t['label']}" for t in cfg["beginner"]["tasks"]["items"]]   # 旧【ビギナー】
+RISE_TASKS = [f"【RISE1】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]      # 旧【RISE】
 IDENT = ["ライバー名", "クリエイターID", "クリエイターのユーザー名", "クリエイターマネージャー", "バックステージ"]
 # 初配信日(マスターU列)は クリエイターのユーザー名(C) と クリエイターマネージャー の間に入れる＝D列
 # バトル回数(LIVE Match数)・ダイヤ獲得割合(Matchダイヤ÷総ダイヤ%)は参加状況の右＝I,J列
@@ -315,7 +315,7 @@ def main():
         last_m = (prev.get("最終参加月") or "").strip()
 
         if in_b or in_r:  # 現在アクティブ
-            rally = "RISE（ビギナー卒業）" if (in_b and in_r) else ("ビギナー" if in_b else "RISE")
+            rally = "RISE1（RISE2卒業）" if (in_b and in_r) else ("RISE2" if in_b else "RISE1")
             base = "在籍"
             last_m = ym                                            # 在籍中は対象月に追従
             status = f"🟢 {mlabel(ym)} 参加中"
@@ -336,9 +336,9 @@ def main():
             rally = prev_rally
             last_m = last_m or ym
             status = "🔴 対象外"
-            if "RISE" in prev_rally:
+            if "RISE1" in prev_rally:
                 base = "RISE卒業"; graduated += 1
-            elif "ビギナー" in prev_rally:
+            elif "RISE2" in prev_rally:
                 base = "ビギナー対象外"; dropped += 1
             else:
                 base = "対象外"
@@ -371,8 +371,8 @@ def main():
         # 課題セルの対象判定（ページのtask_memberと一致させる）：
         #   ビギナー課題＝純ビギナーのみ(mem_b and not mem_r)／RISE課題＝RISE含む(mem_r)。
         #   対象は「達成/日付だけ温存・それ以外は空欄」で誤「—」も自己修復、対象外は「—」。
-        mem_b = "ビギナー" in rally
-        mem_r = "RISE" in rally
+        mem_b = "RISE2" in rally
+        mem_r = "RISE1" in rally
         beg_app = mem_b and not mem_r
         rise_app = mem_r
         for col in BEG_TASKS:
@@ -434,7 +434,7 @@ def main():
 
     # 名簿が変わった or 見出しが変わった → 並べ直して全面書き込み
     order = {"在籍": 0, "RISE卒業": 1, "ビギナー対象外": 2}
-    torder = {"RISE": 0, "RISE（ビギナー卒業）": 1, "ビギナー": 2}
+    torder = {"RISE1": 0, "RISE1（RISE2卒業）": 1, "RISE2": 2}
     out.sort(key=lambda r: (order.get(r["_base"], 9), torder.get(r["ラリー"], 9),
                             r["クリエイターマネージャー"], r["ライバー名"]))
     grid = [[note] + [""] * (width - 1), HEADER]

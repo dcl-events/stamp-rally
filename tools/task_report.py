@@ -19,7 +19,7 @@ import os
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "docs", "data")
 STATE = os.path.join(ROOT, "tools", "state", "task_bundle.json")
-TIER_LABEL = {"beginner": "ビギナー", "rise": "RISE"}
+TIER_LABEL = {"beginner": "RISE2", "rise": "RISE1"}
 
 
 def load_now():
@@ -79,7 +79,7 @@ def main():
             out.append(f"・{name}（{TIER_LABEL[tier]} {done}/{total}）")
     out.append("")
     out.append(
-        f"✅ 現在オールクリア：ビギナー {cleared_total['beginner']}名 ／ RISE {cleared_total['rise']}名"
+        f"✅ 現在オールクリア：RISE2 {cleared_total['beginner']}名 ／ RISE1 {cleared_total['rise']}名"
     )
     print("\n".join(out))
 
