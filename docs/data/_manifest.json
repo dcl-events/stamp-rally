@@ -2,7 +2,7 @@
   "updated": "2026-10-05",
   "period": "2026年10月",
   "source": "クリエイターデータ_Claude(gid=1208970074)",
-  "count": 115,
+  "count": 120,
   "livers": [
     {
       "id": "7684223036823928853",
@@ -425,6 +425,42 @@
       }
     },
     {
+      "id": "7595545313826570256",
+      "name": "土ノ下 絃。(ﾂﾁﾉｼﾀ   ｲﾄ)",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7624058487416406033",
+      "name": "まいまい",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7614148626272796688",
+      "name": "しおり(*´○`)o¶♪🎤🍯",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
       "id": "7658990886794674194",
       "name": "ざべち🧸🎀",
       "tiers": [
@@ -433,6 +469,18 @@
       "status": "在籍",
       "pts": {
         "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7666890522371604500",
+      "name": "しいな🫧🌝",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 10000,
         "rise": 0
       }
     },
@@ -457,6 +505,18 @@
       "status": "在籍",
       "pts": {
         "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7665721845445885969",
+      "name": "まる🎙️🍑",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
         "rise": 0
       }
     },
@@ -545,20 +605,8 @@
       }
     },
     {
-      "id": "7595545313826570256",
-      "name": "土ノ下 絃。(ﾂﾁﾉｼﾀ   ｲﾄ)",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 5000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7614148626272796688",
-      "name": "しおり(*´○`)o¶♪🎤🍯",
+      "id": "7687178892947308564",
+      "name": "セブンス",
       "tiers": [
         "beginner"
       ],
@@ -569,8 +617,8 @@
       }
     },
     {
-      "id": "7359136238131019781",
-      "name": "haienagogor",
+      "id": "7691679245499695125",
+      "name": "ハヤト",
       "tiers": [
         "beginner"
       ],
@@ -581,68 +629,8 @@
       }
     },
     {
-      "id": "7659048277152628752",
-      "name": "shiwasu_piyo",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7674838713691586568",
-      "name": "あーるちゃん",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7608920083414564865",
-      "name": "だいたい明るいさき",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7603234508665552913",
-      "name": "喜音〜Kion〜",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7676350084178739208",
-      "name": "🐾Juny Vicky👁️‍🗨️",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7682068036391682069",
-      "name": "りーちむ",
+      "id": "7678158941712367623",
+      "name": "クレナ",
       "tiers": [
         "beginner"
       ],
@@ -1025,8 +1013,8 @@
       }
     },
     {
-      "id": "7687178892947308564",
-      "name": "セブンス",
+      "id": "7359136238131019781",
+      "name": "haienagogor",
       "tiers": [
         "beginner"
       ],
@@ -1037,8 +1025,8 @@
       }
     },
     {
-      "id": "7691679245499695125",
-      "name": "ハヤト",
+      "id": "7682669263051669525",
+      "name": "有栖川アリス",
       "tiers": [
         "beginner"
       ],
@@ -1049,8 +1037,128 @@
       }
     },
     {
-      "id": "7678158941712367623",
-      "name": "クレナ",
+      "id": "7659048277152628752",
+      "name": "shiwasu_piyo",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7665745391387869191",
+      "name": "mari",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7674838713691586568",
+      "name": "あーるちゃん",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7608920083414564865",
+      "name": "だいたい明るいさき",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7603234508665552913",
+      "name": "喜音〜Kion〜",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7676350084178739208",
+      "name": "🐾Juny Vicky👁️‍🗨️",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7427270912099106833",
+      "name": "星名美緒",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7682068036391682069",
+      "name": "りーちむ",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7640803243886411792",
+      "name": "すら",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7678572916908507157",
+      "name": "ディーナ",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7692012709512118293",
+      "name": "♡みーちゃん♡",
       "tiers": [
         "beginner"
       ],
@@ -1094,42 +1202,6 @@
       "pts": {
         "beginner": 20000,
         "rise": 10000
-      }
-    },
-    {
-      "id": "7666890522371604500",
-      "name": "しいな🫧🌝",
-      "tiers": [
-        "rise"
-      ],
-      "status": "対象外",
-      "pts": {
-        "beginner": 10000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7665721845445885969",
-      "name": "まる🎙️🍑",
-      "tiers": [
-        "rise"
-      ],
-      "status": "対象外",
-      "pts": {
-        "beginner": 5000,
-        "rise": 10000
-      }
-    },
-    {
-      "id": "7682669263051669525",
-      "name": "有栖川アリス",
-      "tiers": [
-        "rise"
-      ],
-      "status": "対象外",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
       }
     },
     {
@@ -1234,18 +1306,6 @@
       "tiers": [
         "beginner",
         "rise"
-      ],
-      "status": "対象外",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7665745391387869191",
-      "name": "mari",
-      "tiers": [
-        "beginner"
       ],
       "status": "対象外",
       "pts": {

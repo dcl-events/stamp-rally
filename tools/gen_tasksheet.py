@@ -45,8 +45,7 @@ RANK_DATA = "/Users/sukeaki.ito/Claude/event-rankings/data"
 BASE_URL = "https://dcl-events.github.io/stamp-rally/?id="
 GRACE_DAYS = 7   # 対象月の経過がこの日数以内なら「配信ゼロ」は判定待ち扱い（月初の誤検知防止）
 # ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む設定（2026-10開始）
-NEWCOMER_FROM_MONTH = "2026-10"   # この対象月以降だけ取り込む
-NEWCOMER_SINCE = "2026-08"        # 入会日の下限（8月登録者ぐらいから）
+NEWCOMER_FROM_MONTH = "2026-10"   # この対象月以降だけ取り込む（当月1ダイヤ以上の未掲載者を全員）
 DRY = "--dry" in sys.argv
 
 cfg = json.load(open(os.path.join(ROOT, "config", "thresholds.json"), encoding="utf-8"))
@@ -54,8 +53,8 @@ BEG_TASKS = [f"【RISE2】{t['label']}" for t in cfg["beginner"]["tasks"]["items
 RISE_TASKS = [f"【RISE1】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]      # 旧【RISE】
 IDENT = ["ライバー名", "クリエイターID", "クリエイターのユーザー名", "クリエイターマネージャー", "バックステージ"]
 # 初配信日(マスターU列)は クリエイターのユーザー名(C) と クリエイターマネージャー の間に入れる＝D列
-# バトル回数(LIVE Match数)・ダイヤ獲得割合(Matchダイヤ÷総ダイヤ%)は参加状況の右＝I,J列
-HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ラリー", "参加状況", "バトル回数", "ダイヤ獲得割合", "Liny URL", "個別URL"]  # A〜L
+# 当月ダイヤ・バトル回数(LIVE Match数)・ダイヤ獲得割合(Matchダイヤ÷総ダイヤ%)は参加状況の右＝I,J,K列
+HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ラリー", "参加状況", "当月ダイヤ", "バトル回数", "ダイヤ獲得割合", "Liny URL", "個別URL"]  # A〜M
 TASK_COLS = BEG_TASKS + RISE_TASKS                                  # K〜R（人が入力する。触らない）
 HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # S〜V（このスクリプトが持つ）
 HEADER = HEAD_A + TASK_COLS + HEAD_B
@@ -202,20 +201,18 @@ def base_of(status):
 def newcomer_ids(cd, ranked, ym):
     """ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む cid 集合を返す。
     対象月が NEWCOMER_FROM_MONTH 以降のときだけ有効（それ以前は空＝従来どおり snapshot のみ）。
-    条件: ①未掲載(snapshotに居ない) ②先月ダイヤ<1万(既存上位でない) ③当月に配信実績あり(有効LIVE日数>0)
-          ④入会が NEWCOMER_SINCE 以降。※ランキングには載せず、課題シート＋RISE2スタンプラリーにだけ出す。"""
+    条件: ①未掲載(snapshotに居ない) ②当月ダイヤ≥1(当月に1ダイヤ以上獲得した人は全員)
+          ③前月ダイヤ<20万(=前月200万pt未満＝RISE1/卒業の上位層を除外)。
+    ※ランキングには載せず、課題シート＋RISE2スタンプラリーにだけ出す。"""
     if ym < NEWCOMER_FROM_MONTH:
         return set()
     out = set()
     for cid, r in cd.items():
         if cid in ranked:
             continue
-        if num(r.get("先月のダイヤモンド数", "")) >= 10000:
+        if num(r.get("先月のダイヤモンド数", "")) >= 200000:   # 前月200万pt超(RISE1/卒業)は除外
             continue
-        if num(r.get("有効LIVE日数", "")) <= 0:
-            continue
-        m = re.match(r"(\d{4})[/-](\d{2})", (r.get("入会日", "") or "").strip())
-        if not (m and f"{m.group(1)}-{m.group(2)}" >= NEWCOMER_SINCE):
+        if num(r.get("ダイヤモンド", "")) < 1:                 # 当月1ダイヤ以上を全員
             continue
         out.add(cid)
     return out
@@ -361,7 +358,8 @@ def main():
         row = {k: v for k, v in zip(IDENT, [name, cid, uname, mgr, bs])}
         row["ラリー"] = rally
         row["参加状況"] = status
-        # バトル回数＝creator_dataのLIVE Match数／ダイヤ獲得割合＝Matchダイヤ÷総ダイヤ(%)
+        # 当月ダイヤ＝creator_dataのダイヤモンド／バトル回数＝LIVE Match数／ダイヤ獲得割合＝Matchダイヤ÷総ダイヤ(%)
+        row["当月ダイヤ"] = c.get("ダイヤモンド", "")
         row["バトル回数"] = c.get("LIVE Match数", "")
         _dia = num(c.get("ダイヤモンド", "")); _mdia = num(c.get("LIVE Matchで獲得したダイヤモンド数", ""))
         row["ダイヤ獲得割合"] = f"{_mdia / _dia * 100:.2f}%" if _dia > 0 else ""
