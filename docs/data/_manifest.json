@@ -353,6 +353,18 @@
       }
     },
     {
+      "id": "7683766845656252434",
+      "name": "なつめ",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
       "id": "7665721845445885969",
       "name": "まる🎙️🍑",
       "tiers": [
@@ -391,6 +403,18 @@
     {
       "id": "7614148626272796688",
       "name": "しおり(*´○`)o¶♪🎤🍯",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7359137979883028485",
+      "name": "唯",
       "tiers": [
         "beginner"
       ],
@@ -569,6 +593,18 @@
       }
     },
     {
+      "id": "7692264762423656500",
+      "name": "はる",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
       "id": "7674640091951939604",
       "name": "ゆ  い",
       "tiers": [
@@ -601,6 +637,18 @@
       "status": "在籍",
       "pts": {
         "beginner": 10000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7607460573575692304",
+      "name": "🐧ryu🥊🐉",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
         "rise": 0
       }
     },
@@ -941,30 +989,6 @@
       }
     },
     {
-      "id": "7683766845656252434",
-      "name": "なつめ",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7359137979883028485",
-      "name": "唯",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
       "id": "7359136238131019781",
       "name": "haienagogor",
       "tiers": [
@@ -1015,18 +1039,6 @@
     {
       "id": "7659048277152628752",
       "name": "shiwasu_piyo",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7692264762423656500",
-      "name": "はる",
       "tiers": [
         "beginner"
       ],
@@ -1141,18 +1153,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7607460573575692304",
-      "name": "🐧ryu🥊🐉",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 5000,
         "rise": 0
       }
     },
