@@ -253,6 +253,8 @@ def load_master_map(sh):
         if not url and i_fid >= 0 and len(r) > i_fid and r[i_fid].strip():
             url = f"https://manager.liny.jp/line/visual?show=detail&member={r[i_fid].strip()}"
         first = r[i_first].strip() if (i_first >= 0 and len(r) > i_first) else ""
+        if first.startswith("#"):   # マスターU列は数式(自動反映)で#N/A等を返すことがある→持ち込まず空欄に
+            first = ""
         if url or first:
             m[sid] = {"liny": url, "first": first}
     nl = sum(1 for v in m.values() if v.get("liny")); nf = sum(1 for v in m.values() if v.get("first"))
