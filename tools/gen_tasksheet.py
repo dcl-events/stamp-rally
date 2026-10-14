@@ -34,6 +34,9 @@ from datetime import datetime, timezone, timedelta
 import gspread
 from google.oauth2.service_account import Credentials
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import firstbcast   # 初配信日を日次TSVから再構成（凍結キャッシュ）
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CREDS = os.environ.get("SERVICE_ACCOUNT_FILE", "/Users/sukeaki.ito/Claude/pococha/service_account.json")
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
@@ -274,6 +277,8 @@ def main():
     ws, cur_header, existing_rows = read_tab(sh, TASK_GID)
     existing = {r.get("クリエイターID"): r for r in existing_rows if r.get("クリエイターID")}
     master_map = load_master_map(sh)   # {配信アプリID(=クリエイターID) → {liny, first}}
+    firstbc, fb_new = firstbcast.update()   # 初配信日の再構成キャッシュ {cid: "YYYY/MM/DD"}（凍結）
+    print(f"初配信日 再構成キャッシュ: {len(firstbc)}名（今回新規 {fb_new}）")
 
     ym = target_month(cd_rows)
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
@@ -367,7 +372,8 @@ def main():
         row["ダイヤ獲得割合"] = f"{_mdia / _dia * 100:.2f}%" if _dia > 0 else ""
         row["Liny URL"] = master_map.get(cid, {}).get("liny", "")   # マスターS列(配信アプリID=クリエイターID)で突合
         row["個別URL"] = BASE_URL + cid
-        row["初配信日"] = master_map.get(cid, {}).get("first", "")   # マスターU列「初配信日 *自動反映」
+        # 初配信日＝日次TSV再構成を優先（確実）、無ければマスターU列(生きてる分)、どちらも無ければ空欄
+        row["初配信日"] = firstbc.get(cid) or master_map.get(cid, {}).get("first", "")
         row["初回参加月"] = first_m
         row["最終参加月"] = last_m
         row["配信状況"] = lstate
