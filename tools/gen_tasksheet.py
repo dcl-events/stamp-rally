@@ -58,9 +58,11 @@ IDENT = ["ライバー名", "クリエイターID", "クリエイターのユー
 # 初配信日(マスターU列)は クリエイターのユーザー名(C) と クリエイターマネージャー の間に入れる＝D列
 # 当月ダイヤ・バトル回数(LIVE Match数)・ダイヤ獲得割合(Matchダイヤ÷総ダイヤ%)は参加状況の右＝I,J,K列
 HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ラリー", "参加状況", "当月ダイヤ", "バトル回数", "ダイヤ獲得割合", "Liny URL", "個別URL"]  # A〜M
-TASK_COLS = BEG_TASKS + RISE_TASKS                                  # K〜R（人が入力する。触らない）
-HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # S〜V（このスクリプトが持つ）
-HEADER = HEAD_A + TASK_COLS + HEAD_B
+HUMAN_COLS = ["バトルDM可"]   # N列（人が入力する。可/— のプルダウン。ランキングのTikTokリンク左に出る）
+TASK_COLS = BEG_TASKS + RISE_TASKS                                  # 〜（人が入力する。触らない）
+HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # 末尾4列（このスクリプトが持つ）
+HEADER = HEAD_A + HUMAN_COLS + TASK_COLS + HEAD_B
+KEEP_COLS = HUMAN_COLS + TASK_COLS   # 部分更新で触らない中央ブロック
 
 
 def col_a1(n):
@@ -102,6 +104,7 @@ def apply_task_validation(ws):
             {"fields": "sheets(properties(sheetId),conditionalFormats)"})["sheets"]:
         if s["properties"]["sheetId"] == TASK_GID:
             ncf = len(s.get("conditionalFormats", []))
+    hfirst = HEADER.index(HUMAN_COLS[0])
     reqs = [
         # 全列(A〜末尾)の検証をいったんクリア → 課題列だけに再設定（他列に残った検証を除去）
         {"setDataValidation": {"range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
@@ -110,6 +113,12 @@ def apply_task_validation(ws):
                                          "startColumnIndex": first, "endColumnIndex": last + 1},
                                "rule": {"condition": {"type": "ONE_OF_LIST",
                                                       "values": [{"userEnteredValue": "達成"}, {"userEnteredValue": "—"}]},
+                                        "showCustomUi": True, "strict": False}}},
+        # バトルDM可（人が選ぶ）：可 / —
+        {"setDataValidation": {"range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
+                                         "startColumnIndex": hfirst, "endColumnIndex": hfirst + len(HUMAN_COLS)},
+                               "rule": {"condition": {"type": "ONE_OF_LIST",
+                                                      "values": [{"userEnteredValue": "可"}, {"userEnteredValue": "—"}]},
                                         "showCustomUi": True, "strict": False}}},
     ]
     for i in range(ncf - 1, -1, -1):
@@ -386,6 +395,8 @@ def main():
         mem_r = "RISE1" in rally
         beg_app = mem_b and not mem_r
         rise_app = mem_r
+        for col in HUMAN_COLS:   # 人が入れた値はそのまま持ち越す
+            row[col] = (prev.get(col, "") if cid in existing else "").strip()
         for col in BEG_TASKS:
             old = (prev.get(col, "") if cid in existing else "").strip()
             row[col] = (old if old not in ("", "—") else "") if beg_app else "—"
@@ -427,7 +438,7 @@ def main():
         a_vals = [[r.get(h, "") for h in HEAD_A] for r in ordered]
         b_vals = [[r.get(h, "") for h in HEAD_B] for r in ordered]
         n = len(ordered) + 2
-        q0 = col_a1(len(HEAD_A) + len(TASK_COLS) + 1)
+        q0 = col_a1(len(HEAD_A) + len(KEEP_COLS) + 1)
         data = [
             {"range": "A1", "values": [[note]]},
             {"range": f"A3:{col_a1(len(HEAD_A))}{n}", "values": a_vals},
