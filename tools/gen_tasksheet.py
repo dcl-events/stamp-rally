@@ -44,6 +44,7 @@ SPREADSHEET_ID = "1A-WSX4mteR-E5kY8V82dTUqoTcD0GDLA0Uq0qiDTzh4"
 TASK_GID = 1676003252
 CREATOR_GID = 1208970074
 MASTER_GID = 1135233534   # 【管理】ライバー一覧マスター（Liny URLの取得元）
+PARTNER_GID = 1089474990  # 【管理】パートナー経由ライバー一覧（同じ列構成・マスターに無い人のLiny URLを補う）
 RANK_DATA = "/Users/sukeaki.ito/Claude/event-rankings/data"
 BASE_URL = "https://dcl-events.github.io/stamp-rally/?id="
 GRACE_DAYS = 7   # 対象月の経過がこの日数以内なら「配信ゼロ」は判定待ち扱い（月初の誤検知防止）
@@ -269,6 +270,26 @@ def load_master_map(sh):
             first = ""
         if url or first:
             m[sid] = {"liny": url, "first": first}
+    # パートナー経由ライバー一覧：マスターに無い人 / マスターでLiny URLが空の人だけ補う
+    try:
+        pv = next(w for w in sh.worksheets() if w.id == PARTNER_GID).get_all_values()
+        ph = pv[2]
+        pf = lambda sub: next((i for i, h in enumerate(ph) if sub in h), -1)
+        p_sid, p_url, p_fid = pf("配信アプリID"), pf("Liny個別トーク"), pf("友達ID")
+        added = 0
+        for r in pv[3:] if p_sid >= 0 else []:
+            sid = r[p_sid].strip() if len(r) > p_sid else ""
+            if not sid or m.get(sid, {}).get("liny"):
+                continue
+            url = r[p_url].strip() if (p_url >= 0 and len(r) > p_url) else ""
+            if not url and p_fid >= 0 and len(r) > p_fid and r[p_fid].strip():
+                url = f"https://manager.liny.jp/line/visual?show=detail&member={r[p_fid].strip()}"
+            if url:
+                m.setdefault(sid, {"liny": "", "first": ""})["liny"] = url
+                added += 1
+        print(f"パートナー経由一覧から Liny URL 補完: {added}件")
+    except Exception as e:
+        print(f"! パートナー経由一覧の読込に失敗: {e} → マスター分のみで継続")
     nl = sum(1 for v in m.values() if v.get("liny")); nf = sum(1 for v in m.values() if v.get("first"))
     print(f"マスター突合: Liny URL {nl}件 / 初配信日(U列) {nf}件（S列キー）")
     return m
