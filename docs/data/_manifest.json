@@ -164,7 +164,6 @@
       "id": "7676066922177495058",
       "name": "花香リリー",
       "tiers": [
-        "beginner",
         "rise"
       ],
       "status": "在籍",
@@ -354,6 +353,18 @@
       }
     },
     {
+      "id": "7473154508684754960",
+      "name": "PE2P(Pepi) | Singer-songwriter",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
+        "rise": 0
+      }
+    },
+    {
       "id": "7686506294584410132",
       "name": "さだきち",
       "tiers": [
@@ -530,6 +541,18 @@
       "status": "在籍",
       "pts": {
         "beginner": 5000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7699850926831616021",
+      "name": "ti_ta_desyo",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 0,
         "rise": 0
       }
     },
@@ -1194,18 +1217,6 @@
       }
     },
     {
-      "id": "7473154508684754960",
-      "name": "PE2P(Pepi) | Singer-songwriter",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
       "id": "7695700666668433428",
       "name": "えむ",
       "tiers": [
@@ -1232,18 +1243,6 @@
     {
       "id": "7601856760542068737",
       "name": "nanata",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7699850926831616021",
-      "name": "ti_ta_desyo",
       "tiers": [
         "beginner"
       ],
