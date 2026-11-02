@@ -176,13 +176,25 @@
       "id": "7618251923921125392",
       "name": "糸結おでん🍢11/18🎂🎊",
       "tiers": [
-        "beginner",
         "rise"
       ],
       "status": "在籍",
       "pts": {
         "beginner": 35000,
         "rise": 15000
+      }
+    },
+    {
+      "id": "7699359695135440914",
+      "name": "にゃん",
+      "tiers": [
+        "beginner",
+        "rise"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 30000,
+        "rise": 20000
       }
     },
     {
@@ -254,18 +266,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 5000,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7699359695135440914",
-      "name": "にゃん",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 30000,
         "rise": 0
       }
     },
@@ -806,6 +806,18 @@
       "status": "在籍",
       "pts": {
         "beginner": 15000,
+        "rise": 0
+      }
+    },
+    {
+      "id": "7702646577671749653",
+      "name": "工藤阿弥香🤍🪽",
+      "tiers": [
+        "beginner"
+      ],
+      "status": "在籍",
+      "pts": {
+        "beginner": 5000,
         "rise": 0
       }
     },
@@ -1370,18 +1382,6 @@
       "status": "在籍",
       "pts": {
         "beginner": 0,
-        "rise": 0
-      }
-    },
-    {
-      "id": "7702646577671749653",
-      "name": "工藤阿弥香🤍🪽",
-      "tiers": [
-        "beginner"
-      ],
-      "status": "在籍",
-      "pts": {
-        "beginner": 5000,
         "rise": 0
       }
     },
