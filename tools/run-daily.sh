@@ -1,8 +1,9 @@
 #!/bin/bash
-# DCL スタンプラリー 日次更新（ローカル）。ランキング日次routineの後に走らせる。
-#   1. gen_tasksheet.py … 課題申告シートの名簿マージ更新（申告セル温存・卒業/対象外フラグ・変化時のみ書込）
-#   2. gen.py           … ライバー別JSONを再生成（成果=クリエイターデータ_Claude / 課題=課題申告シート）
-#   3. 変更があれば git push → GitHub Actions(deploy.yml)が本番Pagesへ反映
+# DCL RISEチェックシート 日次更新（ローカル）。ランキング日次routineの後に走らせる。
+#   gen_tasksheet.py … RISEチェックシート_Claude を更新
+#                      （当月ダイヤ/バトル回数/配信状況などを最新化・ランキング列=前月ptでRISE卒業/1/2/3へ振り分け）
+#   ※スタンプラリー廃止（2026-11）に伴い、旧 gen.py（スタンプページ再生成）と git push は停止。
+#     シートは gspread で直接書くため push 不要。スタンプのサイト(docs/)は最終状態で凍結。
 #   診断ログは tools/daily.log。
 set -uo pipefail
 REPO="$HOME/Claude/stamp-rally"
@@ -19,27 +20,9 @@ trap 'rmdir "$LOCK" 2>/dev/null' EXIT
 
 say "===== 開始 ====="
 
-# 1. 名簿マージ更新（変化が無ければ内部でスキップ）
+# RISEチェックシートの名簿更新（変化が無ければ内部でスキップ）
 if ! "$PY" tools/gen_tasksheet.py >>"$LOG" 2>&1; then
   say "❌ gen_tasksheet 失敗"; exit 1
-fi
-
-# 2. JSON再生成
-if ! "$PY" tools/gen.py >>"$LOG" 2>&1; then
-  say "❌ gen 失敗"; exit 1
-fi
-
-# 3. 変更があれば push
-if ! git diff --quiet || ! git diff --cached --quiet; then
-  git add -A
-  git -c user.name="dcl-events" -c user.email="noreply@dena.com" commit -q -m "chore: update rally data (local daily)"
-  if git push -q 2>>"$LOG"; then
-    say "✅ push 完了"
-  else
-    say "❌ push 失敗"; exit 1
-  fi
-else
-  say "変更なし（pushスキップ）"
 fi
 
 say "===== 完了 ====="

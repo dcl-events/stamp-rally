@@ -1,29 +1,23 @@
 #!/usr/bin/env python3
-"""課題申告シート_Claude を「マージ更新」する。ランキングのsnapshotを見て名簿を最新化する。
+"""RISEチェックシート_Claude を更新する（スタンプラリー廃止に伴う転換・2026-11）。
 
-  ★ 申告セル(課題の達成日)は クリエイターIDキーで必ず温存する（全消し洗い替えしない）。
-  ・新規ライバー          → 行を追加（課題セルは空）
-  ・継続ライバー          → 識別/ラリー/URLを更新、課題申告は温存
-  ・ビギナー→RISE昇格     → ラリー切替（在籍のまま）
-  ・名簿から外れた        → 削除せず 参加状況=「🔴 対象外」（時期は最終参加月、種別はラリー列）
-  ※誰も削除しない。
+  スタンプラリーを一旦廃止したため、旧「課題申告シート」から
+    参加状況 / 個別URL / 課題列（【RISE2】×4・【RISE1】×3）
+  を廃し、ライバーを当月の RISE リーグに振り分ける「RISEチェックシート」にする。
 
-  ■ 月が分かるようにするための列（2026-09-02 追加）
-    G 参加状況     … 当月の状態のみ：🟢 9月 参加中／🟡 9月 参加中（反映待ち）／🔴 対象外
-    Q 初回参加月   … 初めて名簿に載った月（以後ずっと温存）
-    R 最終参加月   … 最後に名簿に載っていた月（在籍中は対象月に追従／離脱で凍結）
-    S 配信状況     … creator_data の当月LIVE時間から自動（月初は「判定待ち」）
-    T URL送付      … 送る / 保留（未配信） / 不要（◯月で終了）＝これで送付対象を絞る
-    対象月 = creator_data の「データ期間」＝ backstage が今返している月（今日-2日基準）
+  ■ ランキング列（旧ラリー）＝当月の所属リーグ。前月ポイントで決まる。
+     ソース: event-rankings/data/prev_month_points_<前月>.json（build_prev_month_points.py 生成）
+     判定（daily_rise.py / events.json の entry_min_prev_pt・milestone_pt と厳密一致）:
+        前月pt ≥ 400万            → RISE卒業
+        200万 ≤ 前月pt < 400万    → RISE1
+        20万  ≤ 前月pt < 200万    → RISE2
+        前月pt < 20万             → RISE3（最下位リーグ・新設）
 
-  ■ 月替わりの扱い（2026-09-04 追加）
-    ランキング側は月スコープ（snapshot が {"month","ranks"} 形式・月初に名簿がリセットされる）。
-    新しい月の snapshot に居ない＝離脱ではないので、対象月の経過が GRACE_DAYS 以内、
-    または snapshot がまだ当月に更新されていない間は、誰も降格させず在籍のまま据え置く。
+  ■ 名簿は既存行を温存（誰も削除しない）。スタンプ廃止で snapshot からの自動取り込みは停止。
+  ■ 人が入力する「バトルDM可」(可/—) は温存（ランキングサイトの ⚔ バッジ入力元・battle_dm.py が列名で読む）。
+  ■ 当月ダイヤ/バトル回数/ダイヤ獲得割合/初配信日/Liny URL/配信状況 は creator_data＋マスターから毎回更新。
 
   実行: ~/Claude/pococha/.venv/bin/python tools/gen_tasksheet.py [--dry]
-
-  ★snapshot(event-rankings/data)が必要＝ランキング日次ルーティンの後に走らせる想定（ローカル）。
 """
 import json
 import os
@@ -41,29 +35,48 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CREDS = os.environ.get("SERVICE_ACCOUNT_FILE", "/Users/sukeaki.ito/Claude/pococha/service_account.json")
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets"]
 SPREADSHEET_ID = "1A-WSX4mteR-E5kY8V82dTUqoTcD0GDLA0Uq0qiDTzh4"
-TASK_GID = 1676003252
-CREATOR_GID = 1208970074
-MASTER_GID = 1135233534   # 【管理】ライバー一覧マスター（Liny URLの取得元）
-PARTNER_GID = 1089474990  # 【管理】パートナー経由ライバー一覧（同じ列構成・マスターに無い人のLiny URLを補う）
+TASK_GID = 1676003252       # RISEチェックシート_Claude
+CREATOR_GID = 1208970074    # クリエイターデータ_Claude
+MASTER_GID = 1135233534     # 【管理】ライバー一覧マスター（Liny URL / 初配信日の取得元）
+PARTNER_GID = 1089474990    # 【管理】パートナー経由ライバー一覧（マスターに無い人のLiny URLを補う）
 RANK_DATA = "/Users/sukeaki.ito/Claude/event-rankings/data"
-BASE_URL = "https://dcl-events.github.io/stamp-rally/?id="
 GRACE_DAYS = 7   # 対象月の経過がこの日数以内なら「配信ゼロ」は判定待ち扱い（月初の誤検知防止）
-# ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む設定（2026-10開始）
-NEWCOMER_FROM_MONTH = "2026-10"   # この対象月以降だけ取り込む（当月1ダイヤ以上の未掲載者を全員）
 DRY = "--dry" in sys.argv
 
-cfg = json.load(open(os.path.join(ROOT, "config", "thresholds.json"), encoding="utf-8"))
-BEG_TASKS = [f"【RISE2】{t['label']}" for t in cfg["beginner"]["tasks"]["items"]]   # 旧【ビギナー】
-RISE_TASKS = [f"【RISE1】{t['label']}" for t in cfg["rise"]["tasks"]["items"]]      # 旧【RISE】
+# RISE リーグのしきい値（前月ポイント）。events.json の entry_min_prev_pt / milestone_pt と一致。
+RISE_GRAD = 4_000_000   # これ以上は RISE1 卒業
+RISE1_MIN = 2_000_000   # RISE1 エントリー（前月200万pt）
+RISE2_MIN = 200_000     # RISE2 エントリー（前月20万pt）／これ未満は RISE3
+
 IDENT = ["ライバー名", "クリエイターID", "クリエイターのユーザー名", "クリエイターマネージャー", "バックステージ"]
-# 初配信日(マスターU列)は クリエイターのユーザー名(C) と クリエイターマネージャー の間に入れる＝D列
-# 当月ダイヤ・バトル回数(LIVE Match数)・ダイヤ獲得割合(Matchダイヤ÷総ダイヤ%)は参加状況の右＝I,J,K列
-HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ラリー", "参加状況", "当月ダイヤ", "バトル回数", "ダイヤ獲得割合", "Liny URL", "個別URL"]  # A〜M
-HUMAN_COLS = ["バトルDM可"]   # N列（人が入力する。可/— のプルダウン。ランキングのTikTokリンク左に出る）
-TASK_COLS = BEG_TASKS + RISE_TASKS                                  # 〜（人が入力する。触らない）
-HEAD_B = ["初回参加月", "最終参加月", "配信状況", "URL送付"]          # 末尾4列（このスクリプトが持つ）
-HEADER = HEAD_A + HUMAN_COLS + TASK_COLS + HEAD_B
-KEEP_COLS = HUMAN_COLS + TASK_COLS   # 部分更新で触らない中央ブロック
+# 初配信日は クリエイターのユーザー名(C) と クリエイターマネージャー の間＝D列
+HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ランキング", "当月ダイヤ", "バトル回数", "ダイヤ獲得割合", "Liny URL"]  # A〜K
+HUMAN_COLS = ["バトルDM可"]   # L列（人が入力。可/— のプルダウン。ランキングサイトの ⚔ バッジ入力元）
+HEAD_B = ["配信状況"]   # 末尾（このスクリプトが持つ）＝M列
+HEADER = HEAD_A + HUMAN_COLS + HEAD_B
+KEEP_COLS = HUMAN_COLS   # 部分更新で触らない（人が入力する）列
+
+
+def classify(pt, cur_dia):
+    """当月の所属リーグ。RISE1/RISE2/卒業は前月ptで確定。
+    RISE3 は参加条件＝当月ダイヤ≥1。前月pt<20万でも当月ダイヤが無ければ「RISE3参加前」。"""
+    if pt >= RISE_GRAD:
+        return "RISE卒業"
+    if pt >= RISE1_MIN:
+        return "RISE1"
+    if pt >= RISE2_MIN:
+        return "RISE2"
+    return "RISE3" if cur_dia >= 1 else "RISE3参加前"
+
+
+def prev_ym_key(ym):
+    """'2026-11' -> '202610'（前月のキー）"""
+    y, m = int(ym[:4]), int(ym[5:7])
+    m -= 1
+    if m == 0:
+        y -= 1
+        m = 12
+    return f"{y}{m:02d}"
 
 
 def col_a1(n):
@@ -74,63 +87,31 @@ def col_a1(n):
     return s
 
 
-def sort_participation(ws, ndata):
-    """参加中を上・対象外/卒業を下へ並べ替える（行ごとサーバ側ソート＝課題も一緒に安全に移動）。
-    参加状況降順(🟢参加中→🟡反映待ち→🔵スタンプのみ→🔴対象外)→配信状況降順→マネージャー→名前。"""
-    if ndata <= 1:
-        return
-    ws.spreadsheet.batch_update({"requests": [{"sortRange": {
-        "range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": 2 + ndata,
-                  "startColumnIndex": 0, "endColumnIndex": len(HEADER)},
-        "sortSpecs": [
-            {"dimensionIndex": HEADER.index("参加状況"), "sortOrder": "DESCENDING"},        # 参加中→反映待ち→対象外
-            {"dimensionIndex": HEADER.index("ラリー"), "sortOrder": "ASCENDING"},           # RISE→RISE(ビギナー卒業)→ビギナー
-            {"dimensionIndex": HEADER.index("配信状況"), "sortOrder": "DESCENDING"},        # 配信状況
-            {"dimensionIndex": HEADER.index("クリエイターマネージャー"), "sortOrder": "ASCENDING"},  # マネージャー
-            {"dimensionIndex": HEADER.index("ライバー名"), "sortOrder": "ASCENDING"},       # ライバー名
-        ]}}]})
-
-
-def apply_task_validation(ws):
-    """課題列だけに プルダウン(達成/—) と ブラックアウト(—を灰で潰す)書式を貼り直す。
-    列を追加/移動しても列位置がズレないよう HEADER から課題列の範囲を毎回計算する
-    （検証/書式は列位置固定なので、列挿入すると元の位置に残り別の列でエラーになる＝それを自己修復）。
-    全書き換え（＝見出し/レイアウト変更）時にだけ呼ぶ。"""
-    first = HEADER.index(TASK_COLS[0])
-    last = HEADER.index(TASK_COLS[-1])
+def apply_dm_validation(ws):
+    """「バトルDM可」列だけに プルダウン(可/—) を貼り、旧スタンプ課題列の検証/ブラックアウト書式を一掃する。
+    全書き換え（見出し/レイアウト変更）時にだけ呼ぶ。"""
+    hfirst = HEADER.index(HUMAN_COLS[0])
     nrows = max(ws.row_count, 1000)
-    grey = {"red": 0.2, "green": 0.2, "blue": 0.2}
     ncf = 0
     for s in ws.spreadsheet.fetch_sheet_metadata(
             {"fields": "sheets(properties(sheetId),conditionalFormats)"})["sheets"]:
         if s["properties"]["sheetId"] == TASK_GID:
             ncf = len(s.get("conditionalFormats", []))
-    hfirst = HEADER.index(HUMAN_COLS[0])
     reqs = [
-        # 全列(A〜末尾)の検証をいったんクリア → 課題列だけに再設定（他列に残った検証を除去）
+        # 旧課題列などに残った検証を全列クリア → バトルDM可だけに再設定
         {"setDataValidation": {"range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
                                          "startColumnIndex": 0, "endColumnIndex": len(HEADER)}}},
         {"setDataValidation": {"range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
-                                         "startColumnIndex": first, "endColumnIndex": last + 1},
-                               "rule": {"condition": {"type": "ONE_OF_LIST",
-                                                      "values": [{"userEnteredValue": "達成"}, {"userEnteredValue": "—"}]},
-                                        "showCustomUi": True, "strict": False}}},
-        # バトルDM可（人が選ぶ）：可 / —
-        {"setDataValidation": {"range": {"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
-                                         "startColumnIndex": hfirst, "endColumnIndex": hfirst + len(HUMAN_COLS)},
+                                         "startColumnIndex": hfirst, "endColumnIndex": hfirst + 1},
                                "rule": {"condition": {"type": "ONE_OF_LIST",
                                                       "values": [{"userEnteredValue": "可"}, {"userEnteredValue": "—"}]},
                                         "showCustomUi": True, "strict": False}}},
     ]
+    # 旧スタンプ課題列のブラックアウト条件付き書式を全削除
     for i in range(ncf - 1, -1, -1):
         reqs.append({"deleteConditionalFormatRule": {"sheetId": TASK_GID, "index": i}})
-    reqs.append({"addConditionalFormatRule": {"index": 0, "rule": {
-        "ranges": [{"sheetId": TASK_GID, "startRowIndex": 2, "endRowIndex": nrows,
-                    "startColumnIndex": first, "endColumnIndex": last + 1}],
-        "booleanRule": {"condition": {"type": "TEXT_EQ", "values": [{"userEnteredValue": "—"}]},
-                        "format": {"backgroundColor": grey, "textFormat": {"foregroundColor": grey}}}}}})
     ws.spreadsheet.batch_update({"requests": reqs})
-    print(f"課題列の検証/書式を再整列: {col_a1(first + 1)}〜{col_a1(last + 1)}")
+    print(f"バトルDM可の検証を再整列＋旧課題列の検証/書式を一掃（条件付き書式 {ncf}件削除）")
 
 
 def num(v):
@@ -189,53 +170,11 @@ def live_state(c, ym, elapsed):
     return f"🔴 未配信（先月も0）", "stop"
 
 
-def load_snapshot(path, ym):
-    """ランキングのsnapshotを読む。
-    新形式 {"month": "YYYY-MM", "ranks": {cid: {...}}} / 旧形式 {cid: {...}} の両対応。
-    戻り値 (その snapshot の月, ranks)。月が対象月と違う＝まだ当月分に更新されていない。"""
-    snap = json.load(open(path))
-    if isinstance(snap, dict) and "ranks" in snap:
-        return (snap.get("month") or ""), (snap.get("ranks") or {})
-    return ym, snap                       # 旧形式は月を持たないので対象月とみなす
-
-
-def base_of(status):
-    """既存行の「参加状況」から 在籍/RISE卒業/ビギナー対象外 を読み戻す。"""
-    s = (status or "").strip()
-    if not s or "参加中" in s or "スタンプ" in s or s == "在籍":
-        return "在籍"
-    if "RISE卒業" in s:
-        return "RISE卒業"
-    if "ビギナー対象外" in s:
-        return "ビギナー対象外"
-    return "対象外"
-
-
-def newcomer_ids(cd, ranked, ym):
-    """ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む cid 集合を返す。
-    対象月が NEWCOMER_FROM_MONTH 以降のときだけ有効（それ以前は空＝従来どおり snapshot のみ）。
-    条件: ①未掲載(snapshotに居ない) ②当月ダイヤ≥1(当月に1ダイヤ以上獲得した人は全員)
-          ③前月ダイヤ<20万(=前月200万pt未満＝RISE1/卒業の上位層を除外)。
-    ※ランキングには載せず、課題シート＋RISE2スタンプラリーにだけ出す。"""
-    if ym < NEWCOMER_FROM_MONTH:
-        return set()
-    out = set()
-    for cid, r in cd.items():
-        if cid in ranked:
-            continue
-        if num(r.get("先月のダイヤモンド数", "")) >= 200000:   # 前月200万pt超(RISE1/卒業)は除外
-            continue
-        if num(r.get("ダイヤモンド", "")) < 1:                 # 当月1ダイヤ以上を全員
-            continue
-        out.add(cid)
-    return out
-
-
 def load_master_map(sh):
     """【管理】ライバー一覧マスターから {配信アプリID(=TikTokクリエイターID) → {liny, first}} を作る。
-    マスターは3行ヘッダ（1行目=空/結合、2行目=大分類、3行目=実見出し、4行目〜データ）。
+    マスターは3行ヘッダ（3行目=実見出し、4行目〜データ）。
       ・liny  = D列「Liny個別トークページ」（空ならE列「Liny友達ID」からテンプレ生成）
-      ・first = U列「初配信日 *自動反映」をそのまま採用"""
+      ・first = U列「初配信日 *自動反映」をそのまま採用（#N/A等の数式エラーは空に落とす）"""
     try:
         mw = next(w for w in sh.worksheets() if w.id == MASTER_GID)
         mv = mw.get_all_values()
@@ -245,11 +184,13 @@ def load_master_map(sh):
     if len(mv) < 4:
         return {}
     hdr = mv[2]
+
     def find(sub):
         for i, h in enumerate(hdr):
             if sub in h:
                 return i
         return -1
+
     i_sid = find("配信アプリID")
     i_url = find("Liny個別トーク")
     i_fid = find("友達ID")
@@ -306,152 +247,99 @@ def main():
     cd = {r["クリエイターID"]: r for r in cd_rows if r.get("クリエイターID")}
     ws, cur_header, existing_rows = read_tab(sh, TASK_GID)
     existing = {r.get("クリエイターID"): r for r in existing_rows if r.get("クリエイターID")}
-    master_map = load_master_map(sh)   # {配信アプリID(=クリエイターID) → {liny, first}}
-    firstbc, fb_new = firstbcast.update()   # 初配信日の再構成キャッシュ {cid: "YYYY/MM/DD"}（凍結）
+    master_map = load_master_map(sh)
+    firstbc, fb_new = firstbcast.update()
     print(f"初配信日 再構成キャッシュ: {len(firstbc)}名（今回新規 {fb_new}）")
 
     ym = target_month(cd_rows)
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
     elapsed = asof.day if asof.strftime("%Y-%m") == ym else 31
 
-    bmonth, beg = load_snapshot(f"{RANK_DATA}/beginner_snapshot.json", ym)
-    rmonth, rise = load_snapshot(f"{RANK_DATA}/rise_snapshot.json", ym)
-    # ランキングは月替わりで名簿がリセットされ、当月ptを積んだ人から順に載っていく。
-    # そのため「新しい月の snapshot に居ない」は離脱の証拠にならない。
-    #   ・snapshot がまだ前月のまま      → 降格判定に使わない（据え置き）
-    #   ・対象月の経過が GRACE_DAYS 以内 → 降格判定に使わない（据え置き）
-    stale = (bmonth != ym) or (rmonth != ym)
-    roster_grace = stale or (elapsed <= GRACE_DAYS)
+    # 前月ポイントで当月リーグを決める（RISE卒業/RISE1/RISE2/RISE3）。
+    pkey = prev_ym_key(ym)
+    ppt_path = f"{RANK_DATA}/prev_month_points_{pkey}.json"
+    try:
+        prev_pt = json.load(open(ppt_path))
+    except Exception as e:
+        prev_pt = {}
+    if not prev_pt:
+        # 前月ポイントが無いと全員が RISE3 になってしまう＝ランキング列を壊す。fail-closed で中止。
+        print(f"❌ 前月ポイント {ppt_path} が読めない/空。ランキング分類ができないため書き込み中止。")
+        sys.exit(1)
+    print(f"前月ポイント: {os.path.basename(ppt_path)}（{len(prev_pt)}名）で当月リーグを判定")
 
-    # ランキング未掲載(<1000pt)の初心者を RISE2(ビギナー)枠へ取り込む（対象月10月以降）。
-    nc = newcomer_ids(cd, set(beg) | set(rise), ym)
-    for cid in nc:
-        beg.setdefault(cid, {"name": cd.get(cid, {}).get("ライバー名", ""), "newcomer": True})
-    if nc:
-        print(f"初心者(未掲載<1000pt)をRISE2枠へ取り込み: {len(nc)}名")
+    # RISEランキングの snapshot（今朝の daily_rise3/daily_beginner/daily_rise が更新済み）から
+    # 当月ランキングに載った人を取り込む＝新規ユーザーを毎朝そろえる。昇格はランキング列(前月pt)で自動反映。
+    #   ★呼び出し元ルーティンは daily_* の後に gen_tasksheet を回すこと（古い snapshot を読まないため）。
+    snap_name = {}
+    snap_ids = set()
+    for fn in ("rise_snapshot.json", "beginner_snapshot.json", "rise3_snapshot.json"):
+        try:
+            s = json.load(open(f"{RANK_DATA}/{fn}"))
+        except Exception as e:
+            print(f"! {fn} 読込失敗: {e}")
+            continue
+        ranks = s.get("ranks", s) if isinstance(s, dict) else {}
+        for cid, info in ranks.items():
+            snap_ids.add(cid)
+            if isinstance(info, dict) and info.get("name"):
+                snap_name.setdefault(cid, info["name"])
+    new_from_snap = snap_ids - set(existing)
+    if new_from_snap:
+        print(f"RISEランキングからの新規取り込み: {len(new_from_snap)}名")
 
-    all_ids = set(existing) | set(beg) | set(rise)
-    added = graduated = dropped = kept = waiting = 0
+    # 名簿＝既存行（温存・誰も削除しない）＋ 当月RISEランキングに載った新規。
+    all_ids = set(existing) | snap_ids
     out = []
+    from collections import Counter
+    tier_cnt = Counter()
     for cid in all_ids:
         prev = existing.get(cid, {})
-        in_b, in_r = cid in beg, cid in rise
         c = cd.get(cid, {})
 
-        # 識別（creator_data優先、無ければ既存行）
-        name = c.get("ライバー名") or prev.get("ライバー名", "")
+        name = c.get("ライバー名") or prev.get("ライバー名", "") or snap_name.get(cid, "")
         uname = c.get("クリエイターのユーザー名") or prev.get("クリエイターのユーザー名", "")
         mgr = c.get("クリエイターマネージャー") or prev.get("クリエイターマネージャー", "")
         bs = c.get("バックステージ") or prev.get("バックステージ", "")
 
-        prev_rally = prev.get("ラリー", "")
-        first_m = (prev.get("初回参加月") or "").strip() or ym       # 初回は一度決めたら動かさない
-        last_m = (prev.get("最終参加月") or "").strip()
-
-        if in_b or in_r:  # 現在アクティブ
-            rally = "RISE1（RISE2卒業）" if (in_b and in_r) else ("RISE2" if in_b else "RISE1")
-            base = "在籍"
-            last_m = ym                                            # 在籍中は対象月に追従
-            # ランキング未掲載の新人(nc=1000pt未満でスタンプラリーのみ取り込み)は区別して表示
-            status = f"🔵 {mlabel(ym)} スタンプラリーのみ" if cid in nc else f"🟢 {mlabel(ym)} 参加中"
-            if cid not in existing:
-                added += 1
-            else:
-                kept += 1
-        elif (roster_grace and base_of(prev.get("参加状況")) == "在籍" and cid in existing
-              and (stale or "RISE1" not in prev_rally)):
-            # 月替わり直後 or snapshot が当月未反映。まだランキングに載っていないだけ＝在籍据え置き。
-            # ★RISE1は前月ポイントで参加が確定する（当月の積み上げ不要）＝snapshotが当月で確定(not stale)なら
-            #   そこに居ない旧RISE1は卒業(前月400万超)or降格(前月200万未満)で確定＝graceを当てず下の対象外へ。
-            #   RISE2(旧ビギナー)は当月1000ptの積み上げで載るのでgrace対象。
-            # 最終参加月は当月の名簿に載るまで進めない（離脱が確定したとき最終参加月を正しく凍結するため）
-            rally = prev_rally
-            base = "在籍"
-            last_m = last_m or ym
-            status = f"🟡 {mlabel(ym)} 参加中（反映待ち）"
-            waiting += 1
-            kept += 1
-        else:  # snapshotから消えた＝離脱。参加状況は当月の状態(=対象外)のみ。時期は最終参加月、種別はラリー列が持つ。
-            rally = prev_rally
-            last_m = last_m or ym
-            status = "🔴 対象外"
-            if "RISE1" in prev_rally:
-                base = "RISE卒業"; graduated += 1
-            elif "RISE2" in prev_rally:
-                base = "ビギナー対象外"; dropped += 1
-            else:
-                base = "対象外"
+        _dia = num(c.get("ダイヤモンド", ""))
+        league = classify(num_or_zero(prev_pt.get(cid)), _dia)
+        tier_cnt[league] += 1
 
         lstate, lcode = live_state(cd.get(cid), ym, elapsed)
-        if base != "在籍":
-            send = f"不要（{mlabel(last_m)}で終了）"
-        elif lcode == "dead":
-            send = "要確認（名簿なし）"
-        elif lcode == "stop":
-            send = "保留（未配信）"
-        else:
-            send = "送る"
 
         row = {k: v for k, v in zip(IDENT, [name, cid, uname, mgr, bs])}
-        row["ラリー"] = rally
-        row["参加状況"] = status
-        # 当月ダイヤ＝creator_dataのダイヤモンド／バトル回数＝LIVE Match数／ダイヤ獲得割合＝Matchダイヤ÷総ダイヤ(%)
+        row["ランキング"] = league
         row["当月ダイヤ"] = c.get("ダイヤモンド", "")
         row["バトル回数"] = c.get("LIVE Match数", "")
-        _dia = num(c.get("ダイヤモンド", "")); _mdia = num(c.get("LIVE Matchで獲得したダイヤモンド数", ""))
+        _mdia = num(c.get("LIVE Matchで獲得したダイヤモンド数", ""))
         row["ダイヤ獲得割合"] = f"{_mdia / _dia * 100:.2f}%" if _dia > 0 else ""
-        row["Liny URL"] = master_map.get(cid, {}).get("liny", "")   # マスターS列(配信アプリID=クリエイターID)で突合
-        row["個別URL"] = BASE_URL + cid
-        # 初配信日＝日次TSV再構成を優先（確実）、無ければマスターU列(生きてる分)、どちらも無ければ空欄
+        row["Liny URL"] = master_map.get(cid, {}).get("liny", "")
         row["初配信日"] = firstbc.get(cid) or master_map.get(cid, {}).get("first", "")
-        row["初回参加月"] = first_m
-        row["最終参加月"] = last_m
         row["配信状況"] = lstate
-        row["URL送付"] = send
-        row["_base"] = base
-        # 課題セルの対象判定（ページのtask_memberと一致させる）：
-        #   ビギナー課題＝純ビギナーのみ(mem_b and not mem_r)／RISE課題＝RISE含む(mem_r)。
-        #   対象は「達成/日付だけ温存・それ以外は空欄」で誤「—」も自己修復、対象外は「—」。
-        mem_b = "RISE2" in rally
-        mem_r = "RISE1" in rally
-        beg_app = mem_b and not mem_r
-        rise_app = mem_r
-        for col in HUMAN_COLS:   # 人が入れた値はそのまま持ち越す
+        # 人が入れた値（バトルDM可）はそのまま持ち越す
+        for col in HUMAN_COLS:
             row[col] = (prev.get(col, "") if cid in existing else "").strip()
-        for col in BEG_TASKS:
-            old = (prev.get(col, "") if cid in existing else "").strip()
-            row[col] = (old if old not in ("", "—") else "") if beg_app else "—"
-        for col in RISE_TASKS:
-            old = (prev.get(col, "") if cid in existing else "").strip()
-            row[col] = (old if old not in ("", "—") else "") if rise_app else "—"
         out.append(row)
 
-    print(f"対象月 {ym}（データ反映 〜{asof:%m-%d}／{elapsed}日経過）")
-    print(f"snapshot ビギナー {bmonth}/{len(beg)}名・RISE {rmonth}/{len(rise)}名"
-          + ("　※当月未反映のため降格判定は据え置き" if stale else
-             f"　※月初{elapsed}日目のため降格判定は据え置き" if roster_grace else ""))
-    print(f"対象ID {len(all_ids)}／新規 {added}・継続 {kept}（うち反映待ち {waiting}）"
-          f"・RISE卒業 {graduated}・ビギナー対象外 {dropped}")
-    from collections import Counter
-    print("URL送付:", dict(Counter(r["URL送付"] for r in out)))
+    print(f"対象月 {ym}（データ反映 〜{asof:%m-%d}／{elapsed}日経過）／前月={pkey[:4]}-{pkey[4:]}")
+    print(f"名簿 {len(out)}名　リーグ分類: {dict(tier_cnt)}")
 
     if DRY:
-        print("[dry-run] 書き込みしない。先頭5行:")
-        for r in out[:5]:
-            print("  ", r["ライバー名"], "|", r["参加状況"], "|", r["配信状況"], "|", r["URL送付"])
+        print("[dry-run] 書き込みしない。先頭8行:")
+        for r in sorted(out, key=_sortkey)[:8]:
+            print("  ", r["ライバー名"], "|", r["ランキング"], "|", r["配信状況"])
         return
 
     JST = timezone(timedelta(hours=9))
     stamp = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
-    note = f"最終更新: {stamp} (JST)　／　対象月: {ym[:4]}年{int(ym[5:7])}月（データ反映 〜{asof:%m-%d}）"
+    note = (f"最終更新: {stamp} (JST)　／　対象月: {ym[:4]}年{int(ym[5:7])}月（データ反映 〜{asof:%m-%d}）"
+            f"　／　ランキング列=前月({pkey[:4]}-{pkey[4:]})ポイントで RISE卒業/1/2/3 を判定（RISE3は当月ダイヤ≥1が参加条件・未満は「RISE3参加前」）")
     width = len(HEADER)
     if ws.col_count < width:
         ws.add_cols(width - ws.col_count)
 
-    # 名簿(ID集合)が変わっていなければ既存の行順を守り、自分が持つ列だけを部分更新する。
-    # ＝人が入力する課題列(I〜P)には一切触らない＝入力中の取りこぼしリスクを最小化。
-    # ★比較対象は「既存シートのID集合」と「今回算出したID集合」。
-    #   （既存行どうしを比べると常に一致してしまい、新規ライバーが書かれない）
+    # 名簿(ID集合)・見出しが変わっていなければ、自分が持つ列だけ部分更新（人入力の「バトルDM可」には触らない）。
     same_roster = (cur_header == HEADER) and (set(existing) == {r["クリエイターID"] for r in out})
     if same_roster:
         by_id = {r["クリエイターID"]: r for r in out}
@@ -467,19 +355,14 @@ def main():
         ]
         if [[r.get(h, "") for h in HEAD_A + HEAD_B] for r in existing_rows] == \
            [[r.get(h, "") for h in HEAD_A + HEAD_B] for r in ordered]:
-            sort_participation(ws, len(ordered))  # 無変更でも並びだけは保証（冪等）
-            print("名簿・状況ともに変更なし → 書き込みスキップ（並びは維持）")
+            print("名簿・内容ともに変更なし → 書き込みスキップ")
             return
         ws.batch_update(data, value_input_option="RAW")
-        sort_participation(ws, len(ordered))
-        print(f"部分更新: {len(ordered)}行（A〜{col_a1(len(HEAD_A))} と {q0}〜{col_a1(width)}／課題列は非更新）＋参加順ソート")
+        print(f"部分更新: {len(ordered)}行（A〜{col_a1(len(HEAD_A))} と {q0}〜{col_a1(width)}／バトルDM可は非更新）")
         return
 
-    # 名簿が変わった or 見出しが変わった → 並べ直して全面書き込み
-    order = {"在籍": 0, "RISE卒業": 1, "ビギナー対象外": 2}
-    torder = {"RISE1": 0, "RISE1（RISE2卒業）": 1, "RISE2": 2}
-    out.sort(key=lambda r: (order.get(r["_base"], 9), torder.get(r["ラリー"], 9),
-                            r["クリエイターマネージャー"], r["ライバー名"]))
+    # 見出し変更 or 名簿変更 → リーグ順に並べて全面書き込み
+    out.sort(key=_sortkey)
     grid = [[note] + [""] * (width - 1), HEADER]
     grid += [[r.get(h, "") for h in HEADER] for r in out]
     if ws.row_count < len(grid):
@@ -487,9 +370,22 @@ def main():
     ws.clear()
     ws.update(values=grid, range_name=f"A1:{col_a1(width)}{len(grid)}", value_input_option="RAW")
     ws.freeze(rows=2)
-    apply_task_validation(ws)   # 列レイアウトが変わった時に課題列の検証/書式を貼り直す（列ズレ自己修復）
-    sort_participation(ws, len(out))
-    print(f"全面書き込み: {len(out)}行 (A1:{col_a1(width)}{len(grid)})＋参加順ソート")
+    apply_dm_validation(ws)
+    print(f"全面書き込み: {len(out)}行 (A1:{col_a1(width)}{len(grid)})＋リーグ順ソート")
+
+
+def num_or_zero(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return 0.0
+
+
+_TORDER = {"RISE卒業": 0, "RISE1": 1, "RISE2": 2, "RISE3": 3, "RISE3参加前": 4}
+
+
+def _sortkey(r):
+    return (_TORDER.get(r["ランキング"], 9), r.get("クリエイターマネージャー", ""), r.get("ライバー名", ""))
 
 
 if __name__ == "__main__":
