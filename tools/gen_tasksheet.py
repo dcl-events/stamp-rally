@@ -322,6 +322,12 @@ def main():
         debut_r3 = {cid: rec for cid, rec in _all.items()
                     if debut_mod.is_month_debut(cid, rec, _fb)}
         print(f"参加日記録(RISE3): 記録 {len(_all)}名 → 参加月に初配信した人 {len(debut_r3)}名を記載")
+        # 参加日が初配信日より前＝あり得ない並び（初配信日のデータ不整合）。出たら名前を出して気づけるようにする。
+        _bad = [f'{rec.get("name","")}(初配信{_fb[cid]}/参加{rec.get("date")})'
+                for cid, rec in _all.items()
+                if cid in _fb and _fb[cid].replace("/", "-") > (rec.get("date") or "9999-99-99")]
+        if _bad:
+            print(f"⚠ 参加日より初配信日が後になっている人 {len(_bad)}名（初配信日の要確認）: " + " / ".join(_bad[:10]))
     except Exception as e:
         print(f"! 参加日の読込/判定に失敗: {e} → 参加日は空欄")
 
