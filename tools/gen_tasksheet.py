@@ -308,22 +308,16 @@ def main():
             snap_ids.add(cid)
             if isinstance(info, dict) and info.get("name"):
                 snap_name.setdefault(cid, info["name"])
-    # 参加日/参加時順位＝RISE3に初めて載った日とその日の順位。**本当に初配信して載ったデビュー組だけ**出す
-    #   （復帰組＝過去に初配信した人がランキングに戻ってきたケースは空欄。判定は event-rankings の debut.py）。
+    # 参加日/参加時順位＝RISE3に初めて載った日とその日の順位。**履歴なので復帰組も含めて全員**埋める
+    #   （「本当に初配信して載ったデビュー組だけ」に絞るのは Slack の日次通知側だけ）。
     #   ★RANK_DATA 側の日次が先に回っている前提（snapshot と同じ）。無ければ空欄のまま＝壊さない。
     debut_r3 = {}
     try:
         sys.path.insert(0, f"{RANK_DATA}/../tools")
         import debut as debut_mod
-        _d = json.load(open(f"{RANK_DATA}/debut_records.json"))
-        if _d.get("month") == ym:
-            _all = (_d.get("leagues") or {}).get("rise3") or {}
-            _fb = debut_mod.load_first_broadcast()
-            debut_r3 = {cid: rec for cid, rec in _all.items()
-                        if debut_mod.is_new_debut(cid, rec, _fb)}
-            print(f"参加日記録(RISE3): 掲載された人 {len(_all)}名 → デビュー組 {len(debut_r3)}名を記載")
-        else:
-            print(f"! debut_records.json は {_d.get('month')} の記録（対象月 {ym} と不一致）→ 参加日は空欄")
+        # シートは履歴なので復帰組（過去に初配信した人）も埋める。デビュー組だけに絞るのはSlackの日次通知だけ。
+        debut_r3 = (debut_mod.load().get("leagues") or {}).get("rise3") or {}   # ★月を跨いでも保持
+        print(f"参加日記録(RISE3): {len(debut_r3)}名（復帰組も履歴として記載）")
     except Exception as e:
         print(f"! 参加日の読込/判定に失敗: {e} → 参加日は空欄")
 
