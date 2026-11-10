@@ -52,7 +52,9 @@ IDENT = ["ライバー名", "クリエイターID", "クリエイターのユー
 # 初配信日は クリエイターのユーザー名(C) と クリエイターマネージャー の間＝D列
 HEAD_A = IDENT[:3] + ["初配信日"] + IDENT[3:] + ["ランキング", "当月ダイヤ", "バトル回数", "ダイヤ獲得割合", "Liny URL"]  # A〜K
 HUMAN_COLS = ["バトルDM可"]   # L列（人が入力。可/— のプルダウン。ランキングサイトの ⚔ バッジ入力元）
-HEAD_B = ["配信状況"]   # 末尾（このスクリプトが持つ）＝M列
+HEAD_B = ["配信状況", "参加日", "参加時順位"]   # 末尾（このスクリプトが持つ）＝M〜O列
+# 参加日/参加時順位＝当月そのリーグのランキングに初めて載った日とその日の順位。
+# event-rankings の日次（daily_rise/daily_beginner/daily_rise3）が data/debut_records.json に記録する。
 HEADER = HEAD_A + HUMAN_COLS + HEAD_B
 KEEP_COLS = HUMAN_COLS   # 部分更新で触らない（人が入力する）列
 
@@ -250,6 +252,14 @@ def main():
     master_map = load_master_map(sh)
     firstbc, fb_new = firstbcast.update()
     print(f"初配信日 再構成キャッシュ: {len(firstbc)}名（今回新規 {fb_new}）")
+    # ①手動オーバーライド（最優先・凍結）＝Backstageの「初回LIVE」など人が確定した初配信日を {cid:"YYYY/MM/DD"} で置く。
+    #   マスターU列に無い人（改名で再構成が誤るケース等）をここで正す。優先順位は ①手動 → ②マスターU → ③再構成。
+    try:
+        manual_first = json.load(open(os.path.join(ROOT, "data", "first_broadcast_manual.json"), encoding="utf-8"))
+    except (ValueError, OSError):
+        manual_first = {}
+    if manual_first:
+        print(f"初配信日 手動オーバーライド: {len(manual_first)}名")
 
     ym = target_month(cd_rows)
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
@@ -284,6 +294,19 @@ def main():
             snap_ids.add(cid)
             if isinstance(info, dict) and info.get("name"):
                 snap_name.setdefault(cid, info["name"])
+    # 参加日/参加時順位（当月そのリーグに初めて載った日とその順位）。
+    #   ★RANK_DATA 側の日次が先に回っている前提（snapshot と同じ）。無ければ空欄のまま＝壊さない。
+    debut_by_league = {}
+    try:
+        _d = json.load(open(f"{RANK_DATA}/debut_records.json"))
+        if _d.get("month") == ym:
+            debut_by_league = _d.get("leagues") or {}
+            print(f"参加日記録: " + " / ".join(f"{k} {len(v)}名" for k, v in debut_by_league.items()))
+        else:
+            print(f"! debut_records.json は {_d.get('month')} の記録（対象月 {ym} と不一致）→ 参加日は空欄")
+    except Exception as e:
+        print(f"! debut_records.json 読込失敗: {e} → 参加日は空欄")
+
     new_from_snap = snap_ids - set(existing)
     if new_from_snap:
         print(f"RISEランキングからの新規取り込み: {len(new_from_snap)}名")
@@ -315,8 +338,17 @@ def main():
         _mdia = num(c.get("LIVE Matchで獲得したダイヤモンド数", ""))
         row["ダイヤ獲得割合"] = f"{_mdia / _dia * 100:.2f}%" if _dia > 0 else ""
         row["Liny URL"] = master_map.get(cid, {}).get("liny", "")
-        row["初配信日"] = firstbc.get(cid) or master_map.get(cid, {}).get("first", "")
+        # 初配信日＝①手動オーバーライド → ②マスターU列 → ③日次TSV再構成 の優先順。
+        #   ★再構成(firstbcast)は「有効LIVE日数0→1 かつ 先月0」で検出するが、月替わりで日数は毎月0に戻るため
+        #     「先月休んで今月再開した既存ライバー」を新規デビューと誤認する（例:mimi0610.jp 実06/07→誤11/02）。
+        #     ①はBackstageの「初回LIVE」等で人が確定した値、②マスターが直ったので優先、③は①②に無い人の最終保険。
+        row["初配信日"] = manual_first.get(cid) or master_map.get(cid, {}).get("first", "") or firstbc.get(cid, "")
         row["配信状況"] = lstate
+        # 参加日/参加時順位は「いま所属しているリーグ」の記録を出す（RISE卒業/RISE3参加前は空欄）
+        _rec = (debut_by_league.get({"RISE1": "rise1", "RISE2": "rise2", "RISE3": "rise3"}
+                                    .get(league, ""), {}) or {}).get(cid)
+        row["参加日"] = _rec["date"].replace("-", "/") if _rec else ""
+        row["参加時順位"] = f"{_rec['rank']}位/{_rec['total']}人" if _rec else ""
         # 人が入れた値（バトルDM可）はそのまま持ち越す
         for col in HUMAN_COLS:
             row[col] = (prev.get(col, "") if cid in existing else "").strip()
@@ -329,6 +361,9 @@ def main():
         print("[dry-run] 書き込みしない。先頭8行:")
         for r in sorted(out, key=_sortkey)[:8]:
             print("  ", r["ライバー名"], "|", r["ランキング"], "|", r["配信状況"])
+        print("[dry-run] 参加日が入る例（RISE3）:")
+        for r in [x for x in sorted(out, key=_sortkey) if x["参加日"]][:6]:
+            print(f'   {r["ライバー名"]} | {r["ランキング"]} | 参加日 {r["参加日"]} | {r["参加時順位"]}')
         return
 
     JST = timezone(timedelta(hours=9))
