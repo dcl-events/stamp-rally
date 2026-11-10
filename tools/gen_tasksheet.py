@@ -308,16 +308,20 @@ def main():
             snap_ids.add(cid)
             if isinstance(info, dict) and info.get("name"):
                 snap_name.setdefault(cid, info["name"])
-    # 参加日/参加時順位＝RISE3に初めて載った日とその日の順位。**履歴なので復帰組も含めて全員**埋める
-    #   （「本当に初配信して載ったデビュー組だけ」に絞るのは Slack の日次通知側だけ）。
+    # 参加日/参加時順位＝RISE3に初めて載った日とその日の順位。**参加した月に初配信した人だけ**記載。
+    #   （それ以前に初配信した復帰組は空欄。Slackの日次通知は「初配信から30日以内」で別途絞る）
     #   ★RANK_DATA 側の日次が先に回っている前提（snapshot と同じ）。無ければ空欄のまま＝壊さない。
     debut_r3 = {}
     try:
         sys.path.insert(0, f"{RANK_DATA}/../tools")
         import debut as debut_mod
-        # シートは履歴なので復帰組（過去に初配信した人）も埋める。デビュー組だけに絞るのはSlackの日次通知だけ。
-        debut_r3 = (debut_mod.load().get("leagues") or {}).get("rise3") or {}   # ★月を跨いでも保持
-        print(f"参加日記録(RISE3): {len(debut_r3)}名（復帰組も履歴として記載）")
+        # 記載するのは「ランキングに参加した月にD列の初配信日がある人」だけ（2026-11-10 ユーザー指示）。
+        # それ以前に初配信した復帰組は空欄のまま。記録自体は全員ぶん残る（月を跨いでも保持）。
+        _all = (debut_mod.load().get("leagues") or {}).get("rise3") or {}
+        _fb = debut_mod.load_first_broadcast()
+        debut_r3 = {cid: rec for cid, rec in _all.items()
+                    if debut_mod.is_month_debut(cid, rec, _fb)}
+        print(f"参加日記録(RISE3): 記録 {len(_all)}名 → 参加月に初配信した人 {len(debut_r3)}名を記載")
     except Exception as e:
         print(f"! 参加日の読込/判定に失敗: {e} → 参加日は空欄")
 
