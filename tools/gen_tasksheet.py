@@ -261,6 +261,20 @@ def main():
     if manual_first:
         print(f"初配信日 手動オーバーライド: {len(manual_first)}名")
 
+    # 初配信日の確定版（①手動 → ②マスターU列 → ③再構成）を event-rankings 側へ渡す。
+    #   RISE3の「新規参加」判定（本当に初配信してランキングに載った人だけ出す）に使う。読むだけの派生ファイル。
+    resolved_first = {}
+    for _cid in set(list(manual_first) + list(master_map) + list(firstbc)):
+        _v = manual_first.get(_cid) or master_map.get(_cid, {}).get("first", "") or firstbc.get(_cid, "")
+        if _v:
+            resolved_first[str(_cid)] = _v
+    try:
+        with open(f"{RANK_DATA}/first_broadcast_resolved.json", "w", encoding="utf-8") as _f:
+            json.dump(resolved_first, _f, ensure_ascii=False, indent=0)
+        print(f"初配信日の確定版を書き出し: {len(resolved_first)}名 → {RANK_DATA}/first_broadcast_resolved.json")
+    except OSError as _e:
+        print(f"! 初配信日の書き出しに失敗: {_e}")
+
     ym = target_month(cd_rows)
     asof = datetime.now(timezone.utc) - timedelta(days=2)   # backstage の実績反映は約2日遅れ
     elapsed = asof.day if asof.strftime("%Y-%m") == ym else 31
@@ -294,18 +308,24 @@ def main():
             snap_ids.add(cid)
             if isinstance(info, dict) and info.get("name"):
                 snap_name.setdefault(cid, info["name"])
-    # 参加日/参加時順位（当月そのリーグに初めて載った日とその順位）。
+    # 参加日/参加時順位＝RISE3に初めて載った日とその日の順位。**本当に初配信して載ったデビュー組だけ**出す
+    #   （復帰組＝過去に初配信した人がランキングに戻ってきたケースは空欄。判定は event-rankings の debut.py）。
     #   ★RANK_DATA 側の日次が先に回っている前提（snapshot と同じ）。無ければ空欄のまま＝壊さない。
-    debut_by_league = {}
+    debut_r3 = {}
     try:
+        sys.path.insert(0, f"{RANK_DATA}/../tools")
+        import debut as debut_mod
         _d = json.load(open(f"{RANK_DATA}/debut_records.json"))
         if _d.get("month") == ym:
-            debut_by_league = _d.get("leagues") or {}
-            print(f"参加日記録: " + " / ".join(f"{k} {len(v)}名" for k, v in debut_by_league.items()))
+            _all = (_d.get("leagues") or {}).get("rise3") or {}
+            _fb = debut_mod.load_first_broadcast()
+            debut_r3 = {cid: rec for cid, rec in _all.items()
+                        if debut_mod.is_new_debut(cid, rec, _fb)}
+            print(f"参加日記録(RISE3): 掲載された人 {len(_all)}名 → デビュー組 {len(debut_r3)}名を記載")
         else:
             print(f"! debut_records.json は {_d.get('month')} の記録（対象月 {ym} と不一致）→ 参加日は空欄")
     except Exception as e:
-        print(f"! debut_records.json 読込失敗: {e} → 参加日は空欄")
+        print(f"! 参加日の読込/判定に失敗: {e} → 参加日は空欄")
 
     new_from_snap = snap_ids - set(existing)
     if new_from_snap:
@@ -344,9 +364,8 @@ def main():
         #     ①はBackstageの「初回LIVE」等で人が確定した値、②マスターが直ったので優先、③は①②に無い人の最終保険。
         row["初配信日"] = manual_first.get(cid) or master_map.get(cid, {}).get("first", "") or firstbc.get(cid, "")
         row["配信状況"] = lstate
-        # 参加日/参加時順位は「いま所属しているリーグ」の記録を出す（RISE卒業/RISE3参加前は空欄）
-        _rec = (debut_by_league.get({"RISE1": "rise1", "RISE2": "rise2", "RISE3": "rise3"}
-                                    .get(league, ""), {}) or {}).get(cid)
+        # 参加日/参加時順位はRISE3のデビュー組だけ（RISE1/2・RISE卒業・RISE3参加前は空欄）
+        _rec = debut_r3.get(cid) if league == "RISE3" else None
         row["参加日"] = _rec["date"].replace("-", "/") if _rec else ""
         row["参加時順位"] = f"{_rec['rank']}位/{_rec['total']}人" if _rec else ""
         # 人が入れた値（バトルDM可）はそのまま持ち越す
